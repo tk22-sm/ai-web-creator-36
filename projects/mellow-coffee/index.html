@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MELLOW COFFEE</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <header class="header">
+            <div class="header-inner">
+                <a href="#" class="logo">MELLOW COFFEE</a>
+                <nav class="nav">
+                    <a href="#concept">CONCEPT</a>
+                    <a href="#family">FOR FAMILY</a>
+                    <a href="#menu">MENU</a>
+                    <a href="#space">SPACE</a>
+                    <a href="#faq">FAQ</a>
+                    <a href="#access">ACCESS</a>
+                </nav>
+                <a href="#access" class="header-cta">
+                    お店へのアクセス
+                </a>
+                <button class="menu-toggle" 
+                id="menuToggle"
+                aria-label="メニューを開く"
+                aria-expanded="false"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </header>
+        <main>
+            <section class="hero">
+                <div class="hero-inner">
+                    <div class="hero-content">
+                        <p class="hero-label">
+                            WELCOME TO MELLOW COFFEE
+                        </p>
+
+                        <h1 class="hero-title">
+                            子どもと一緒に、<br>
+                            ひと息つける場所。
+                        </h1>
+
+                        <p class="hero-text">
+                            ベビーカーのままでも。泣いてしまっても。<br>
+                            ここでは少しだけ、肩の力を抜いて。
+                        </p>
+
+                        <div class="hero-buttons">
+                            <a href="#concept" class="button button-secondary">
+                                お店について
+                            </a>
+
+                            <a href="#access" class="button button-primary">
+                                お店へのアクセス
+                            </a>
+                        </div>
+                    </div>
+                    <div class="hero-image">
+                        <img src="images/hero.png" alt="子どもと一緒にカフェで過ごす親子">
+                    </div>
+                </div>
+            </section>
+            <section id="concept" class="concept">
+                <div class="concept-inner">
+                    <div class="concept-image">
+                        <img
+                            src="images/concept.png"
+                            alt="コーヒーを飲みながら穏やかな時間を過ごす様子"
+                        >
+                    </div>
+                    <div class="concept-content">
+                        <p class="section-label">CONCEPT</p>
+                        <h2 class="section-title">
+                            子育ての毎日に、<br>
+                            小さな余白を。
+                        </h2>
+                        <p class="concept-text">
+                            子どもが生まれてから、<br>
+                            ゆっくりコーヒーを飲む時間が少なくなった。
+                        </p>
+                        <p class="concept-text">
+                            MELLOW COFFEEは、<br>
+                            お子さまと一緒に気軽に立ち寄り、<br>
+                            少しだけ肩の力を抜けるカフェです。
+                        </p>
+                        <p class="concept-text">
+                            周りを見れば、同じように子育てをしている人たちがいる。<br>
+                            そんな安心も感じてもらえる場所を目指しています。
+                        </p>
+                    </div>
+                </div>
+            </section>
+            <section id="family" class="family">
+                <div class="family-inner">
+                    <div class="family-heading">
+                        <p class="section-label">FOR FAMILY</p>
+                        <h2 class="section-title">
+                            小さなお子さまと一緒でも、<br>
+                            安心して。
+                        </h2>
+                        <p class="family-lead">
+                            お子さまと一緒に過ごす時間が、
+                            少しでも心地よいものになるように。
+                        </p>
+                    </div>
+                    <div class="family-grid">
+                        <article class="family-card">
+                            <div class="family-icon">◎</div>
+                            <h3>STROLLER</h3>
+                            <p>ベビーカーのまま店内へ入れます。</p>
+                        </article>
+                        <article class="family-card">
+                            <div class="family-icon">◎</div>
+                            <h3>NURSING</h3>
+                            <p>授乳スペースをご用意しています。</p>
+                        </article>
+                        <article class="family-card">
+                            <div class="family-icon">◎</div>
+                            <h3>DIAPER</h3>
+                            <p>おむつ交換スペースがあります。</p>
+                        </article>
+                        <article class="family-card">
+                            <div class="family-icon">◎</div>
+                            <h3>KIDS CHAIR</h3>
+                            <p>小さなお子さま用のチェアをご用意しています。</p>
+                        </article>
+                        <article class="family-card">
+                            <div class="family-icon">◎</div>
+                            <h3>WIDE SPACE</h3>
+                            <p>ベビーカーでも移動しやすい広めの通路です。</p>
+                        </article>
+                    </div>
+                    <p class="family-message">
+                        小さなお子さまの声や泣き声も、
+                        どうぞ気にせずお過ごしください。
+                    </p>
+                </div>
+            </section>
+            <section id="menu" class="menu">
+                <div class="menu-inner">
+                    <div class="heading">
+                        <p class="section-label">MENU</p>
+                        <h2 class="section-title">
+                            おいしい時間を、<br>
+                            親子で一緒に。
+                        </h2>
+                        <p class="menu-lead">
+                            無添加にこだわったフードから、
+                            本格的なコーヒーまで。
+                            大人も子どもも楽しめるメニューをご用意しています。
+                        </p>
+                    </div>
+                </div>
+                <div class="menu-grid">
+                    <article class="menu-card" data-title="COFFEE"
+                        data-description="香り豊かな豆を丁寧に抽出した、MELLOW COFFEEの定番コーヒーです。"
+                        data-price="¥500"
+                        >
+                        <img src="images/menu-coffee.png" alt="MELLOW COFFEEのコーヒー">
+                        <div class="menu-card-content">
+                            <h3>COFFEE</h3>
+                            <p>香り豊かな、いつもの一杯。</p>
+                            <button class="menu-detail-button">
+                                詳しく見る
+                            </button>
+                        </div>
+                    </article>
+
+                    <article class="menu-card" data-title="DECAF"
+                        data-description="カフェインを控えたい方にも楽しんでいただける、やさしい味わいのデカフェです。"
+                        data-price="¥550"
+                    >
+                        <img src="images/menu-decaf.png" alt="MELLOW COFFEEのデカフェ">
+                        <div class="menu-card-content">
+                            <h3>DECAF</h3>
+                            <p>カフェインを控えたい時にも。</p>
+                            <button class="menu-detail-button">
+                                詳しく見る
+                            </button>
+                        </div>
+                    </article>
+
+                    <article class="menu-card" data-title="FOOD"
+                        data-description="素材と味付けにこだわった、からだにやさしい食事をご用意しています。"
+                        data-price="¥1,200"
+                    >
+                        <img src="images/menu-food.png" alt="無添加にこだわったフード">
+                        <div class="menu-card-content">
+                            <h3>FOOD</h3>
+                            <p>からだにやさしい、親子の食事。</p>
+
+                            <button class="menu-detail-button">
+                                詳しく見る
+                            </button>
+                        </div>
+                    </article>
+
+                    <article class="menu-card" data-title="KIDS"
+                        data-description="小さなお子さまでも食べやすい食材と味付けで作ったキッズプレートです。"
+                        data-price="¥650"
+                    >
+                        <img src="images/menu-kids.png" alt="小さな子ども向けメニュー">
+                        <div class="menu-card-content">
+                            <h3>KIDS</h3>
+                            <p>小さなお子さまにも安心のメニュー。</p>
+                            <button class="menu-detail-button">
+                                詳しく見る
+                            </button>
+                        </div>
+                    </article>
+                </div>
+            </section>
+            <section id="space" class="space">
+                <div class="space-inner">
+                    <div class="space-heading">
+                        <p class="section-label">SPACE</p>
+                        <h2 class="section-title">
+                            親子で過ごせる、<br>
+                            やさしい空間。
+                        </h2>
+                    </div>
+                    <div class="space-content">
+                        <div class="space-image">
+                            <img
+                            src="images/space-main.png"
+                            alt="ベビーカーでも過ごしやすいMELLOW COFFEEの店内"
+                            >
+                        </div>
+                        <div class="space-text">
+                            <p class="space-subtitle">
+                            ベビーカーのまま、<br>
+                            気兼ねなく。
+                            </p>
+                            <p>
+                            広めの通路と、ゆったりした席。<br>
+                            お子さまと一緒でも安心して過ごせる<br>
+                            空間をご用意しています。
+                            </p>
+                            <p>
+                            小さなお子さまの声や泣き声も、<br>
+                            どうぞ気にせずお過ごしください。
+                            </p>
+                        </div>
+                    </div>
+                    <p class="space-message">
+                    親子の時間も、自分の時間も。<br>
+                    ここではゆっくり楽しんでください。
+                    </p>
+                </div>
+            </section>
+            <section id="faq" class="faq">
+                <div class="faq-inner">
+                    <div class="faq-heading">
+                        <p class="section-label">FAQ</p>
+                        <h2 class="section-title">
+                            よくあるご質問
+                        </h2>
+                        <p class="faq-lead">
+                            お子さまと一緒にご来店いただく際の、
+                            よくあるご質問をまとめました。
+                        </p>
+                    </div>
+                    <div class="faq-list">
+                        <div class="faq-item">
+                            <button class="faq-question">
+                                <span>ベビーカーのまま入店できますか？</span>
+                                <span class="faq-icon">＋</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>
+                                    はい。ベビーカーのままご入店いただけます。
+                                    店内はベビーカーでも移動しやすいよう、
+                                    広めの通路を設けています。
+                                </p>
+                            </div>
+                        </div>
+                        <div class="faq-item">
+                            <button class="faq-question">
+                                <span>授乳スペースやおむつ交換スペースはありますか？</span>
+                                <span class="faq-icon">＋</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>
+                                    はい。授乳スペースとおむつ交換スペースを
+                                    ご用意しています。
+                                </p>
+                            </div>
+                        </div>
+                        <div class="faq-item">
+                            <button class="faq-question">
+                                <span>子ども向けのメニューはありますか？</span>
+                                <span class="faq-icon">＋</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>
+                                    はい。小さなお子さまにも食べていただきやすい
+                                    キッズメニューをご用意しています。
+                                </p>
+                            </div>
+                        </div>
+                        <div class="faq-item">
+                            <button class="faq-question">
+                                <span>子どもが泣いてしまっても大丈夫ですか？</span>
+                                <span class="faq-icon">＋</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>
+                                    もちろんです。
+                                    小さなお子さまの声や泣き声も、
+                                    どうぞ気にせずお過ごしください。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="access" class="access">
+                <div class="access-inner">
+                    <div class="access-heading">
+                        <p class="section-label">ACCESS</p>
+                        <h2 class="section-title">
+                            お店へのアクセス
+                        </h2>
+                        <p class="access-lead">
+                            お散歩の途中でも、子育ての合間でも。<br>
+                            お子さまと一緒に気軽にお越しください。
+                        </p>
+                    </div>
+                    <div class="access-content">
+                        <div class="access-map">
+                            <div class="map-placeholder">
+                                MAP
+                            </div>
+                        </div>
+
+                        <div class="access-info">
+                            <h3>MELLOW COFFEE</h3>
+                            <dl class="access-list">
+                                <div class="access-item">
+                                    <dt>ADDRESS</dt>
+                                    <dd>
+                                    〒123-4567<br>
+                                    東京都○○区○○ 1-2-3
+                                    </dd>
+                                </div>
+                                <div class="access-item">
+                                    <dt>ACCESS</dt>
+                                    <dd>○○駅から徒歩5分</dd>
+                                </div>
+                                <div class="access-item">
+                                    <dt>OPEN</dt>
+                                    <dd>10:00 - 18:00</dd>
+                                </div>
+                                <div class="access-item">
+                                    <dt>CLOSE</dt>
+                                    <dd>Wednesday</dd>
+                                </div>
+                                <div class="access-item">
+                                    <dt>PARKING</dt>
+                                    <dd>3台</dd>
+                                </div>
+                                <div class="access-item">
+                                    <dt>ENTRANCE</dt>
+                                    <dd>入口段差なし / ベビーカーOK</dd>
+                                </div>
+                            </dl>
+                            <a href="#" class="button button-primary">
+                                Google Mapsで見る
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="final-cta">
+                <div class="final-cta-inner">
+                    <p class="section-label">MELLOW TIME</p>
+                    <h2 class="final-cta-title">
+                        今日も、ちょっとひと息。
+                    </h2>
+                    <p class="final-cta-text">
+                        お散歩の途中でも、子育ての合間でも。<br>
+                        お子さまと一緒に、気軽にお越しください。
+                    </p>
+                    <a href="#access" class="button button-primary">
+                        お店へのアクセス
+                    </a>
+                </div>
+            </section>
+        </main>
+        <div class="modal" id="menu-modal">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <button class="modal-close" aria-label="閉じる">
+                ×
+                </button>
+                <p class="section-label">MENU DETAIL</p>
+                <h2 class="modal-title"></h2>
+                <p class="modal-description"></p>
+                <p class="modal-price"></p>
+            </div>
+        </div>
+        <footer class="footer">
+            <div class="footer-inner">
+                <div class="footer-brand">
+                    <a href="#" class="footer-logo">
+                        MELLOW COFFEE
+                    </a>
+                    <p>
+                        子どもと一緒に、<br>
+                        ひと息つける場所。
+                    </p>
+                </div>
+                <nav class="footer-nav">
+                    <a href="#concept">CONCEPT</a>
+                    <a href="#family">FOR FAMILY</a>
+                    <a href="#menu">MENU</a>
+                    <a href="#space">SPACE</a>
+                    <a href="#faq">FAQ</a>
+                    <a href="#access">ACCESS</a>
+                </nav>
+                <p class="footer-copy">
+                    © 2026 MELLOW COFFEE
+                </p>
+            </div>
+        </footer>
+
+        <script src="script.js"></script>
+    </body>
+
+</html>
