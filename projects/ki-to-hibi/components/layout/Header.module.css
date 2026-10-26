@@ -1,0 +1,125 @@
+.header {
+    padding: 24px;
+    background-color: #f7f5f0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid #d8d5cc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.inner {
+    max-width: 1100px;
+    width: 100%;
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav {
+    display: none;
+}
+
+.nav a {
+    color: #333333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s ease;
+}
+
+.nav a:hover {
+    color: #496b55;
+}
+
+.nav .contactLink {
+    background-color: #496b55;
+    color: #ffffff;
+    padding: 12px 20px;
+    border-radius: 4px;
+}
+
+.nav .contactLink:hover {
+    background-color: #36513f;
+    color: #ffffff;
+}
+
+.menuButton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    color: #333333;
+}
+
+.menuButton span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: #333333;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.menuButton.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.menuButton.open span:nth-child(2) {
+    opacity: 0;
+}
+
+.menuButton.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.mobileNav {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+}
+
+.mobileNav a {
+    color: #333333;
+    text-decoration: none;
+    font-size: 16px;
+    border-top: 1px solid #e5e2dc;
+}
+
+.mobileNav .contactLink {
+    background-color: #496b55;
+    color: #ffffff;
+    padding: 14px 20px;
+    border-radius: 4px;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 600;
+    text-decoration: none;
+    color: #333333;
+}
+
+
+
+@media (min-width: 960px) {
+    .header {
+        padding: 24px 40px;
+    }
+    .nav {
+        display: flex;
+        gap: 32px;
+    }
+    .menuButton {
+        display: none;
+    }
+    .mobileNav {
+        display: none;
+    }
+}

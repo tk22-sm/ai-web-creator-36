@@ -1,0 +1,146 @@
+.main {
+    max-width: 800px;
+    margin-inline: auto;
+    padding: 80px 24px;
+}
+
+.form {
+    margin-top: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.field input {
+    padding: 14px 16px;
+    border: 1px solid #d8d5cc;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: #fff;
+    color: #333;
+}
+
+.field textarea {
+    padding: 14px 16px;
+    border: 1px solid #d8d5cc;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: #fff;
+    color: #333;
+    resize: vertical;
+}
+
+.submitButton {
+    padding: 16px 32px;
+    background-color: #496b55;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.backButton {
+    padding: 14px 28px;
+    background-color: transparent;
+    color: #496b55;
+    border: 1px solid #496b55;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.confirmation{
+    margin-top: 48px;
+}
+
+.confirmationList{
+    margin-top: 32px;
+    border: 1px solid #d8d5cc;
+    border-radius: 4px;
+}
+
+.confirmationItem{
+    padding: 24px;
+    border-bottom: 1px solid #d8d5cc;
+}
+
+.confirmationItem h3{
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.confirmationItem p{
+    font-size: 16px;
+    color: #333;
+    line-height: 1.8;
+    white-space: pre-wrap;
+}
+
+.confirmationItem:last-child {
+    border-bottom: none;
+}
+
+.completed{
+    margin-top: 64px;
+    padding: 48px 24px;
+    background-color: #eeece6;
+    text-align: center;
+}
+
+.homeLink{
+    display: inline-block;
+    margin-top: 32px;
+    padding: 16px 32px;
+    background-color: #496b55;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.confirmationActions {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.confirmationActions button {
+    flex: 1;
+}
+
+.demoNotice {
+    margin-top: 32px;
+    padding: 20px 24px;
+    background-color: #f5f3ee;
+    border: 1px solid #d0cdc4;
+    border-left: 4px solid #496b55;
+    border-radius: 6px;
+    color: #444;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.demoNoticeTitle {
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+@media (min-width: 768px) {
+    .confirmationActions {
+        flex-direction: row;
+    }
+
+    .confirmationActions button {
+        flex: 1;
+    }
+}

@@ -1,0 +1,35 @@
+.button {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background-color: #496b55;
+  color: #ffffff;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.2s ease;
+}
+
+.button:hover {
+  opacity: 0.8;
+}
+
+.button:focus-visible {
+  outline: 3px solid #333333;
+  outline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .button {
+    right: 16px;
+    bottom: 16px;
+  }
+}

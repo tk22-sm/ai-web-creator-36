@@ -1,0 +1,85 @@
+.main {
+    max-width: 1000px;
+    margin-inline: auto;
+    padding: 80px 24px;
+}
+
+.philosophy {
+    margin-top: 80px;
+    padding: 48px 32px;
+    background-color: #eeece6;
+}
+
+.label {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: #496b55;
+}
+
+.values {
+    margin-top: 96px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-top: 32px;
+}
+
+.card {
+    background-color: #eeece6;
+    padding: 32px;
+}
+
+.cardTitle {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+.cardDescription {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #666;
+}
+
+.company {
+    margin-top: 96px;
+}
+
+.companyList {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+.companyList dt {
+    padding: 20px 16px 4px;
+    font-weight: 600;
+    border-bottom: none;
+}
+
+.companyList dd {
+    padding: 4px 16px 20px;
+    margin: 0;
+    border-bottom: 1px solid #d8d5cc;
+}
+
+@media (min-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .companyList {
+        grid-template-columns: 1fr 2fr;
+    }
+    .companyList dt {
+        padding: 20px 16px;
+        border-bottom: 1px solid #d8d5cc;
+    }
+    .companyList dd	{
+        padding: 20px 16px;
+        border-bottom: 1px solid #d8d5cc;
+    }
+}

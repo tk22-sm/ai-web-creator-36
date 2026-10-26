@@ -1,0 +1,39 @@
+.cta {
+  padding: 100px 24px;
+  background-color: #eeece6;
+  text-align: center;
+}
+
+.label {
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  color: #5a6b5d;
+}
+
+.title {
+  font-size: 24px;
+  line-height: 1.5;
+  margin: 16px 0 24px;
+}
+
+.text {
+  max-width: 600px;
+  margin: 0 auto;
+  font-size: 16px;
+  line-height: 2;
+  color: #555555;
+}
+
+.button {
+    display: inline-block;
+    background-color: #496b55;
+    color: #ffffff;
+    padding: 16px 32px;
+    margin-top: 32px;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.button:hover {
+    opacity: 0.8;
+}

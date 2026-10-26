@@ -1,0 +1,43 @@
+.section {
+    max-width: 1100px;
+    margin-inline: auto;
+    padding: 120px 24px;
+}
+
+.grid {
+    display: grid;
+    gap: 32px;
+}
+
+.card {
+    background-color: #eeece6;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.card:hover {
+    background-color: #e2dfd5;
+}
+
+.cardLink {
+    display: block;
+    padding: 40px 32px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.title {
+    font-size: 24px;
+    line-height: 1.5;
+    margin-bottom: 48px;
+}
+
+@media (min-width: 768px) {
+    .grid {
+    grid-template-columns: repeat(2, 1fr);
+    }
+
+    .title {
+    font-size: 28px;
+    }
+}
