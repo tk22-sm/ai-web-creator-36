@@ -1,40 +1,142 @@
+/*
+ * Kai Design 共通CSS
+ *
+ * 役割分担：
+ * - このファイル：デザイントークン（CSS変数）、リセット、要素の基本スタイル、
+ *   全ページ共通のアクセシビリティ設定（フォーカス表示・スキップリンク・reduced motion）。
+ * - CSS Modules（*.module.css）：各コンポーネント固有のレイアウト。
+ *   色・余白・文字サイズはここで定義した変数を参照し、値を直接書かない。
+ *
+ * ブレークポイント（モバイルファースト。min-width で上書きする）：
+ * - 768px  以上：タブレット（PC用ナビゲーションに切り替え）
+ * - 1024px 以上：PC
+ * CSS変数は @media の条件に使えないため、数値は各ファイルで直接記述する。
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ---- カラー（仕様書 5章） ---- */
+  --color-bg: #111214;
+  --color-surface: #1c1e22;
+  --color-text: #f5f5f2;
+  /* 仮値：補助文字色。#111214 上で 7.69:1、#1C1E22 上で 6.85:1（WCAG AA 4.5:1 以上） */
+  --color-text-muted: #a3a6ad;
+  --color-accent: #7cecc0;
+  --color-accent-hover: #a6f4d7;
+  /* 装飾用の区切り線。情報を伝えないためコントラスト要件の対象外 */
+  --color-border: rgb(245 245 242 / 0.12);
+
+  /* ---- フォント（仮採用：システムフォント。STEP 5 で最終調整） ---- */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+    "Noto Sans JP", "Yu Gothic", YuGothic, Meiryo, sans-serif;
+  /* 英語見出し用。現時点では本文と同じ。差し替えはこの変数だけで行う */
+  --font-heading: var(--font-sans);
+
+  /* ---- 文字サイズ（rem 基準。ユーザーのブラウザ設定を尊重する） ---- */
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: clamp(1.375rem, 1.2rem + 0.8vw, 1.75rem);
+  --fs-2xl: clamp(1.75rem, 1.4rem + 1.6vw, 2.5rem);
+  --fs-display: clamp(2.25rem, 1.5rem + 3.5vw, 4.5rem);
+
+  --lh-body: 1.8;
+  --lh-heading: 1.35;
+
+  /* ---- 余白・レイアウト（仕様書 5章。値は実装時に検証・調整） ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --content-max: 1200px;
+  /* 左右余白：スマホ約20px → PC 最大64px */
+  --gutter: clamp(1.25rem, 5vw, 4rem);
+  /* セクション間隔：スマホ約72px → PC 約120px */
+  --section-gap: clamp(4.5rem, 3rem + 6vw, 7.5rem);
+
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --header-height: 64px;
+
+  /* ---- 動き ---- */
+  --duration-fast: 0.2s;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@media (prefers-color-scheme: dark) {
+@media (min-width: 1024px) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --header-height: 72px;
   }
 }
 
+/* ---- リセット ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
 html {
-  height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  color-scheme: dark;
+  /* sticky ヘッダーの下にアンカー先（/#journal など）が隠れないようにする */
+  scroll-padding-top: var(--header-height);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
-  min-height: 100%;
   display: flex;
   flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: var(--lh-body);
+  overflow-wrap: anywhere;
+  line-break: strict;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+/* layout.tsx の <main>。フッターを常に画面下端以降に置く */
+main {
+  flex: 1;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  line-height: var(--lh-heading);
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+ul,
+ol {
+  list-style: none;
 }
 
 a {
@@ -42,8 +144,56 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* ---- アクセシビリティ ---- */
+
+/* キーボード操作時のみフォーカスリングを表示する（マウスクリックでは出さない） */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* 「本文へスキップ」リンク。通常は画面外に置き、フォーカス時だけ表示する */
+.skip-link {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 1000;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+  font-weight: 700;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+  outline-color: var(--color-text);
+}
+
+@media (prefers-reduced-motion: no-preference) {
   html {
-    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+}
+
+/* 動きを減らす設定の利用者には、トランジションとアニメーションをほぼ無効化する */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

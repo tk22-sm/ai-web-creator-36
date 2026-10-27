@@ -1,0 +1,114 @@
+.root {
+  display: block;
+}
+
+/* PC用ナビ（Header）に切り替わる幅では、スマホ用メニュー一式を非表示にする */
+@media (min-width: 768px) {
+  .root {
+    display: none;
+  }
+}
+
+/* タップ領域 44×44px 以上を確保 */
+.toggle {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-right: calc(var(--space-3) * -1);
+  border-radius: var(--radius-md);
+}
+
+/* ハンバーガーアイコン：中央の線を .icon、上下の線を疑似要素で描く */
+.icon,
+.icon::before,
+.icon::after {
+  display: block;
+  width: 22px;
+  height: 2px;
+  border-radius: 1px;
+  background-color: var(--color-text);
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
+}
+
+.icon {
+  position: relative;
+}
+
+.icon::before,
+.icon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.icon::before {
+  transform: translateY(-7px);
+}
+
+.icon::after {
+  transform: translateY(7px);
+}
+
+/* 開いているとき：中央線を消し、上下の線を回転させて「×」にする */
+.toggle[aria-expanded="true"] .icon {
+  background-color: transparent;
+}
+
+.toggle[aria-expanded="true"] .icon::before {
+  transform: rotate(45deg);
+}
+
+.toggle[aria-expanded="true"] .icon::after {
+  transform: rotate(-45deg);
+}
+
+/* ヘッダー直下から画面下端までを覆うパネル */
+.panel {
+  position: fixed;
+  inset: var(--header-height) 0 0;
+  z-index: 90;
+  overflow-y: auto;
+  padding: var(--space-8) var(--gutter);
+  background-color: var(--color-bg);
+  visibility: hidden;
+  opacity: 0;
+  /* 閉じるとき：フェードが終わってから visibility を切り替える */
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    visibility 0s linear var(--duration-fast);
+}
+
+.panel[data-open="true"] {
+  visibility: visible;
+  opacity: 1;
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    visibility 0s;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.link {
+  display: block;
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.link[aria-current="page"] {
+  color: var(--color-accent);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--color-accent-hover);
+  }
+}
