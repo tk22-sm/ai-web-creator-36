@@ -1,0 +1,84 @@
+.footer {
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  /* Header と同様、背景色と文字色を対で指定する */
+  color: var(--color-text);
+}
+
+/* スマホ：縦積み / 768px 以上：ブランドとナビを横並び、著作権表示は下段 */
+.inner {
+  display: grid;
+  gap: var(--space-8);
+  max-width: calc(var(--content-max) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding: var(--space-12) var(--gutter) var(--space-8);
+}
+
+@media (min-width: 768px) {
+  .inner {
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    padding-top: var(--space-16);
+  }
+}
+
+.logo {
+  font-family: var(--font-heading);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.note {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  gap: var(--space-1) var(--space-8);
+}
+
+@media (min-width: 1024px) {
+  .list {
+    display: flex;
+    gap: var(--space-8);
+  }
+}
+
+/* 行内リンクでもタップしやすいよう、上下の余白で高さ 44px 前後を確保 */
+.link {
+  display: inline-block;
+  padding-block: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.link[aria-current="page"] {
+  color: var(--color-accent);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+.copyright {
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 768px) {
+  .copyright {
+    grid-column: 1 / -1;
+  }
+}
+
+.copyright small {
+  font-size: var(--fs-sm);
+}

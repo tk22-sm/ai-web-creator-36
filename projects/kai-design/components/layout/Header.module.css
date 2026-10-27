@@ -1,0 +1,85 @@
+/*
+ * スクロールしても上部に固定する。
+ * 注意：backdrop-filter などを付けると、MobileNav の position: fixed パネルの基準が
+ * 画面ではなくヘッダーになってしまうため使用しない。
+ */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--color-bg);
+  /* 背景色と対で指定し、body の文字色が上書きされる画面（Next.js 既定の404など）でも読めるようにする */
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  max-width: calc(var(--content-max) + var(--gutter) * 2);
+  height: var(--header-height);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.logo {
+  font-family: var(--font-heading);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.desktopNav {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .desktopNav {
+    display: block;
+  }
+}
+
+.list {
+  display: flex;
+  gap: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .list {
+    gap: var(--space-8);
+  }
+}
+
+.link {
+  position: relative;
+  display: block;
+  padding-block: var(--space-2);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  white-space: nowrap;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+/* 現在ページ：アクセント色の下線で示す（色だけに頼らず形でも区別する） */
+.link[aria-current="page"] {
+  color: var(--color-accent);
+}
+
+.link[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background-color: currentColor;
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--color-accent-hover);
+  }
+}
