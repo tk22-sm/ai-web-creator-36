@@ -1,0 +1,57 @@
+/* スマホ：1列 / 1024px 以上：要約文（左）と経歴の一覧（右）の2列（仕様書 5章） */
+.grid {
+  display: grid;
+  gap: var(--space-12);
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-16);
+  }
+}
+
+.summary {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  max-width: 34em;
+}
+
+.action {
+  margin-top: var(--space-4);
+}
+
+.facts {
+  border-top: 1px solid var(--color-border);
+}
+
+/* 768px 以上：項目名と内容を横並び */
+.fact {
+  display: grid;
+  gap: var(--space-2);
+  padding-block: var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+}
+
+@media (min-width: 768px) {
+  .fact {
+    grid-template-columns: 6em 1fr;
+    gap: var(--space-6);
+  }
+}
+
+.term {
+  color: var(--color-accent);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.details {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.detail {
+  display: block;
+}
