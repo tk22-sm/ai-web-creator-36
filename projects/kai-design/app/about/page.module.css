@@ -1,0 +1,79 @@
+/* Profile：h1 の直後に置く自己紹介文。本文より一段大きく、行幅を抑えて読みやすくする */
+.profile {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 40em;
+  margin-top: var(--space-8);
+  font-size: var(--fs-lg);
+}
+
+/*
+ * 経歴・スキルの定義リスト。作品詳細の Overview（ProjectOverview）と同じ並べ方で、
+ * スマホは縦積み / 768px 以上は項目名と内容を横並びにする。
+ */
+.definitionList {
+  max-width: 52rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.row {
+  display: grid;
+  gap: var(--space-1);
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+@media (min-width: 768px) {
+  .row {
+    grid-template-columns: 12em 1fr;
+    gap: var(--space-6);
+  }
+}
+
+.term {
+  color: var(--color-accent);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+/* 技術名は区切り記号を付けず、間隔だけで並べる（熟練度などの装飾は付けない） */
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-6);
+}
+
+/* What I Can Do：スマホ 1列 / 768px 以上 2列のカード */
+.services {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .services {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+}
+
+.service {
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+}
+
+@media (min-width: 1024px) {
+  .service {
+    padding: var(--space-8);
+  }
+}
+
+.serviceTitle {
+  font-size: var(--fs-lg);
+}
+
+.serviceDescription {
+  margin-top: var(--space-3);
+  color: var(--color-text-muted);
+}
