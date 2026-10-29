@@ -1,0 +1,6 @@
+/* 作品一覧の領域。下のお問い合わせセクションとの間は Section 側の余白で取る */
+.list {
+  max-width: calc(var(--content-max) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}

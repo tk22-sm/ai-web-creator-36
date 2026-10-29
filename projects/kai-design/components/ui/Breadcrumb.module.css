@@ -1,0 +1,42 @@
+.nav {
+  margin-bottom: var(--space-8);
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/*
+ * 2つ目以降の項目の前に区切り記号を置く。
+ * 2行目の「/ ""」は読み上げ用の代替テキストを空にする指定。非対応ブラウザは1行目を使う。
+ */
+.item + .item::before {
+  content: "›";
+  content: "›" / "";
+}
+
+.link {
+  display: inline-block;
+  padding-block: var(--space-2);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--color-accent-hover);
+  }
+}
