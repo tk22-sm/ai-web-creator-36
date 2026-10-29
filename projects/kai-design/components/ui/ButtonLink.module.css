@@ -1,0 +1,64 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  font-weight: 700;
+  line-height: 1.5;
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+/* primary / secondary：タップしやすい高さ（48px 前後）を確保 */
+.primary,
+.secondary {
+  min-height: 48px;
+  padding: var(--space-3) var(--space-6);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+}
+
+/* 背景 #7CECC0 上の文字 #111214 はコントラスト比 約13:1 */
+.primary {
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.secondary {
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+/* text：下線付きの文字リンク。行内でも押しやすいよう上下に余白を取る */
+.text {
+  padding-block: var(--space-2);
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.4em;
+}
+
+.arrow {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .primary:hover {
+    background-color: var(--color-accent-hover);
+  }
+
+  .secondary:hover {
+    border-color: var(--color-accent-hover);
+    color: var(--color-accent-hover);
+  }
+
+  .text:hover {
+    color: var(--color-accent-hover);
+  }
+
+  .button:hover .arrow {
+    transform: translateX(4px);
+  }
+}

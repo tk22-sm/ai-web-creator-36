@@ -1,0 +1,108 @@
+.hero {
+  padding-block: var(--space-16) var(--section-gap);
+}
+
+/* スマホ：テキスト上＋画像下 / 1024px 以上：テキスト左＋画像右（仕様書 5章） */
+.inner {
+  display: grid;
+  gap: var(--space-12);
+  max-width: calc(var(--content-max) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+@media (min-width: 1024px) {
+  .inner {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    align-items: center;
+    gap: var(--space-16);
+    min-height: calc(100svh - var(--header-height) - var(--space-16) * 2);
+  }
+}
+
+/* 見出しの文字サイズをこの列の幅に合わせて決めるため、コンテナクエリの基準にする */
+.text {
+  container-type: inline-size;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-accent);
+  font-family: var(--font-heading);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* 英語コピーの前に短い線を置き、見出しの始まりを示す（装飾のみ） */
+.eyebrow::before {
+  content: "";
+  width: 2rem;
+  height: 1px;
+  background-color: currentColor;
+}
+
+/*
+ * 文字サイズの対比で印象を出す：見出しは最大級、説明文は本文サイズ。
+ * 1句（最長9文字「伝えるべきことを、」）が列の幅に1行で収まる最大サイズにする。
+ * 10.6cqi ≒ 列の幅 ÷ 9.4文字分（字間 0.02em を含めた余裕込み）。
+ * 1行目の font-size はコンテナクエリ単位（cqi）非対応ブラウザ向けのフォールバック。
+ */
+.title {
+  margin-top: var(--space-6);
+  font-size: var(--fs-display);
+  font-size: min(var(--fs-display), 10.6cqi);
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+}
+
+.phrase {
+  display: inline-block;
+}
+
+.description {
+  max-width: 30em;
+  margin-top: var(--space-8);
+  font-size: var(--fs-lg);
+  /* 最終行に1〜2文字だけ残る改行を避ける（対応ブラウザのみ） */
+  text-wrap: pretty;
+}
+
+.note {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+/* スマホ：ボタンを縦並び・全幅 / 480px 以上：横並び */
+.actions {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-12);
+}
+
+@media (min-width: 480px) {
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+}
+
+.frame {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.image {
+  width: 100%;
+}
+
+.caption {
+  margin-top: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}

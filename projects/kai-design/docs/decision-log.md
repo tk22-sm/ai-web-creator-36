@@ -67,3 +67,85 @@
 
 ### D-013 AGENTS.md の自動書き換えはコミットしない
 - `next dev` 実行時に見出しレベル（`#` → `##`）が書き換わるが、内容に変化はなく STEP 2-A と無関係なため、差分は元に戻してコミット対象から外す。
+
+---
+
+## STEP 2-B：Homeページ（2026-10-28）
+
+### D-014 Home のセクションはすべて Server Component
+- 決定：`components/home/*`・`components/projects/ProjectCard`・`components/ui/*` に `"use client"` を付けない。
+- 理由：Home には開閉・入力などブラウザ側で保持する状態がない。JavaScript を増やさず、Hydration mismatch の原因も作らない。
+- 比較：スクロール時の表示（IntersectionObserver）を今入れる案 → Client Component が必要になり、仕様書 11章の STEP 5（動き）の役割と重なるため不採用。
+
+### D-015 デザイン方針：ミニマル55%・クリエイティブ45%（目安）
+- 決定（2026-10-28 追加確定）：
+  - 全体は余白と読みやすさを優先し、洗練された印象にする。
+  - Hero は大きな日本語コピーと代表作品のビジュアルで印象を残す。
+  - Selected Projects は作品画像を 16:10 で大きく見せる。
+  - Approach・About は装飾を抑え（番号・区切り線・テキストのみ）、信頼感を優先する。
+  - 大胆さは文字サイズ・レイアウト・余白の対比で表現し、装飾（グラデーション・図形・背景画像など）は増やさない。
+  - 配色は仕様書 5章のまま（ダーク背景＋ミントのアクセント）。新しい色トークンは追加していない。
+  - アニメーションは最小限（ボタン・リンクの色と矢印の 0.2 秒の変化のみ）。Hero のフェード等は STEP 5。
+- 影響：既存トークン（`--fs-display` など）の値は変更していない。
+
+### D-016 仕様書 9章の構成に3コンポーネントを追加
+- `components/ui/Section.tsx`：英語ラベル＋日本語 h2、`aria-labelledby`、最大幅コンテナを5セクションで共通化。STEP 3 以降の下層ページでも再利用する想定。
+- `components/ui/ButtonLink.tsx`：CTA（primary / secondary / text）の見た目とホバー・フォーカスを統一。移動を伴うため `<button>` ではなく `<a>`（next/link）。
+- `components/home/ContactCta.tsx`：Home の Contact は誘導のみ。STEP 4 のフォーム本体（`contact/ContactForm.tsx`）と名前で区別する。
+- 削除：`app/page.module.css`（STEP 2-A のプレースホルダー専用だったため）。
+
+### D-017 Hero の代表作品は MELLOW COFFEE（仮）
+- 理由：木と日々のファーストビューは文字中心で、縮小表示すると印象が弱い。MELLOW COFFEE は写真を含み、Hero の「ビジュアルで印象を残す」方針に合う。
+- Selected Projects の並び順は仕様書 6章の記載順（木と日々 → MELLOW COFFEE）のまま。
+- 差し替えは `data/projects.ts` の `HERO_PROJECT_SLUG` を変えるだけ。Hero コンポーネントには作品名・画像パスを直接書かず、作品データから取得する。
+
+### D-018 作品・記事データは型付きの TypeScript ファイルで管理
+- `types/project.ts`（Project 型）＋ `data/projects.ts`、`data/articles.ts`（Article 型は利用箇所が Journal のみのため同じファイルに定義。`data/navigation.ts` と同じ方式）。
+- 画像はパス文字列と実寸（width / height）をデータに持たせる。
+- 比較：画像の静的 import（寸法を自動取得できる）→ データが単純な値でなくなり、仕様書 9章の `public/images/` 配置とも異なるため不採用。JSON → 型を別に書く必要があるため不採用。
+- 日付は `YYYY-MM-DD` 文字列で持ち、表示時は文字列置換だけで `YYYY.MM.DD` に整形（`toLocaleDateString` は実行環境で結果が変わり得るため使わない）。
+
+### D-019 Journal は記事0件でもセクションを表示する
+- 理由：ナビの「学習・制作記録」（`/#journal`）の移動先のため。公開済み記事の URL が未確定なので、現在は「公開準備中」の案内を表示する。
+- note プロフィールへのリンクは `noteProfileUrl` が null の間は表示しない。
+- 外部リンクは新しいタブで開き、「（新しいタブで開きます）」を読み上げ用テキスト（`.visually-hidden`、globals.css に追加）で伝える。
+
+### D-020 作品画像は既存サイトのスクリーンショット（仮・公開可否は未確認）
+- 作成方法：同リポジトリの `projects/ki-to-hibi`（ビルド後の `out/`）と `projects/mellow-coffee` をローカルで配信し、Playwright で 16:10 の範囲を JPEG（品質80、1600×1000px）で撮影。追加パッケージなし。
+  - 木と日々：施工事例の一覧部分（`works-section.jpg`、約112KB）
+  - MELLOW COFFEE：ファーストビュー部分（`hero-section.jpg`、約136KB）
+- **確認事項**：画面内の写真（住宅・カフェの写真）の出どころと利用権がリポジトリ内の記録から確認できない。利用権を確認できるまで、公開可能とは判断しない。
+- `next.config.ts` が `images.unoptimized: true`（静的書き出しのため）なので `srcset` は出力されない。表示サイズに合わせた画像を自分で用意する方針。
+- Hero 画像は `loading="eager"` + `fetchPriority="high"`（Next.js 16 で `priority` は非推奨）。
+
+### D-021 Hero 見出しの文字サイズを列幅から決める
+- 発生した問題：`--fs-display`（最大 4.5rem）のままだと、PC の左列で「伝えるべ／きことを、」のように句の途中で改行された。
+- 対処：テキスト列を `container-type: inline-size` にし、`font-size: min(var(--fs-display), 10.6cqi)` で最長の句（9文字）が1行に収まる最大サイズにする。各句は `inline-block` で途中改行を防ぐ。列比率は テキスト6：画像5。
+- 比較：`<br>` で改行位置を固定する案 → スマホ幅で不自然な改行が残るため不採用。
+- あわせて見出し全体に `word-break: auto-phrase`（対応ブラウザで文節単位の改行）を追加。非対応ブラウザでは従来どおり。
+
+### D-022 未作成ページへのリンクはそのまま置く
+- `/projects`・`/projects/[slug]`・`/about`・`/contact` は STEP 3・4 で作成するまで 404 になる（静的配信時、next/link の先読みでも 404 がコンソールに出る）。公開は STEP 6 のため、公開前に解消される。
+
+### D-023 型チェックの前に `next typegen` が必要
+- `npx tsc --noEmit` を単独で実行すると `Cannot find name 'LayoutProps'` で失敗する。`LayoutProps` はビルド時または `next typegen` で生成される型のため。検証手順は `npx next typegen && npx tsc --noEmit` とする。
+
+### D-024 将来方針：Hero の代表作品を MY SOLO に差し替える（記録のみ・未実装）
+- 方針（2026-10-29 共有）：自主開発Webサービス「MY SOLO」が完成したら、Hero の代表作品を MELLOW COFFEE から MY SOLO に差し替える。
+- 現在の構造：Hero は `data/projects.ts` の `HERO_PROJECT_SLUG` と作品データから画像・作品名・種別を取得する。作品名・画像パスをコンポーネントに直接書かない構造を維持する。
+- 将来の課題：MY SOLO は架空案件ではなく自主開発プロダクト（仕様書 3章の Products）。現在の `Project` 型は「自主制作の架空案件」専用（`fictionLabel` が必須、カードに「自主制作」ラベルを固定表示）のため、Products 追加時に次のいずれかで区別できるようにする。
+  - 案A：`Project` 型に区分（例：`category: "fictional" | "product"`）を追加し、`fictionLabel` を架空案件のときだけ必須にする（判別可能なユニオン型）。
+  - 案B：Products 用の型・データ（`types/product.ts`、`data/products.ts`）を別に作り、Hero は両方から選べるようにする。
+  - どちらを採るかは MY SOLO の公開時期・掲載内容が決まった時点で判断する。今回はリファクタリングしない。
+- 注意：差し替え時は Hero のキャプション（現在「自主制作：作品名（種別）」）が Products でも正しい表記になるか確認する。
+
+### 公開前の未解決事項（STEP 2-B 時点）
+- [ ] MELLOW COFFEE・木と日々のスクリーンショットに含まれる写真の利用権確認（D-020）。確認できるまで公開可能と判断しない。
+- [ ] About の経歴・文章の最終確認（2026年4月以降の業務内容の記載可否を含む）。
+- [ ] 未作成ページ `/projects`・`/projects/[slug]`・`/about`・`/contact`・`/privacy` の実装（STEP 3・4。D-022）。
+- [ ] Journal に掲載する公開済み note 記事・note プロフィールの URL（仕様書 14章）。
+
+### 学習ポイント（SNS・note 向けメモ）
+- カード全体をクリック可能にする「疑似要素を広げる」手法と、`:has()` によるカード単位のフォーカス表示（非対応ブラウザでリングが消えないよう `@supports` で囲む）。
+- コンテナクエリ単位（`cqi`）で、見出しを「列の幅にちょうど収まる大きさ」にする方法。
+- `images.unoptimized` 環境での `next/image` の役割（最適化はされないが、寸法指定によるレイアウトのずれ防止・遅延読み込みは効く）。
