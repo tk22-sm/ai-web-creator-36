@@ -12,6 +12,12 @@ type SectionProps = {
   lead?: ReactNode;
   /** 見出しエリアの右側（PC）／下側（スマホ）に置く要素。一覧へのリンクなど（任意） */
   action?: ReactNode;
+  /**
+   * セクションの上下の余白。
+   * - default：Home 用（スマホ約72px〜PC約120px）
+   * - compact：作品詳細など、文章を続けて読むページ用（STEP 3 で追加）
+   */
+  spacing?: "default" | "compact";
   children: ReactNode;
 };
 
@@ -26,11 +32,21 @@ type SectionProps = {
  * Header / Footer は同じ max-width の指定をそれぞれ書いているが、Home は5セクションで
  * 同じ指定が必要になるため部品化した（decision-log.md D-016）。
  */
-export default function Section({ id, eyebrow, title, lead, action, children }: SectionProps) {
+export default function Section({
+  id,
+  eyebrow,
+  title,
+  lead,
+  action,
+  spacing = "default",
+  children,
+}: SectionProps) {
   const headingId = `${id}-heading`;
+  // default のときは追加クラスなし（Home の見た目を STEP 2-B から変えないため）
+  const className = spacing === "compact" ? `${styles.section} ${styles.compact}` : styles.section;
 
   return (
-    <section id={id} className={styles.section} aria-labelledby={headingId}>
+    <section id={id} className={className} aria-labelledby={headingId}>
       <div className={styles.inner}>
         <div className={styles.header}>
           <div className={styles.headingGroup}>

@@ -1,0 +1,65 @@
+/* 本文は1行が長くなりすぎないよう幅を抑え、読みやすさを優先する */
+.content {
+  display: grid;
+  gap: var(--space-6);
+  max-width: 52rem;
+}
+
+.paragraphs {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.listLabel {
+  margin-bottom: var(--space-2);
+  font-weight: 700;
+}
+
+/* 箇条書きの行頭にアクセント色の短い線を置く（globals.css で list-style を消しているため） */
+.list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.list li {
+  position: relative;
+  padding-left: var(--space-6);
+}
+
+.list li::before {
+  content: "";
+  position: absolute;
+  top: 0.9em;
+  left: 0;
+  width: 0.75em;
+  height: 1px;
+  background-color: var(--color-accent);
+}
+
+.items {
+  border-top: 1px solid var(--color-border);
+}
+
+/* スマホ：見出し → 説明の縦積み / 1024px 以上：見出し（左）と説明（右）の2列 */
+.item {
+  display: grid;
+  gap: var(--space-2);
+  padding-block: var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+}
+
+@media (min-width: 1024px) {
+  .item {
+    grid-template-columns: 14em 1fr;
+    gap: var(--space-8);
+  }
+}
+
+.itemTitle {
+  font-weight: 700;
+  line-height: var(--lh-heading);
+}
+
+.itemBody {
+  color: var(--color-text);
+}

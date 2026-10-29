@@ -1,0 +1,44 @@
+.overview {
+  display: grid;
+  gap: var(--space-8);
+  max-width: 52rem;
+}
+
+/* 架空案件の注記。アクセント色の左線で、本文より目立たせる */
+.notice {
+  padding: var(--space-4) var(--space-6);
+  border-left: 2px solid var(--color-accent);
+  background-color: var(--color-surface);
+}
+
+.list {
+  border-top: 1px solid var(--color-border);
+}
+
+/* About の経歴一覧と同じ並べ方：スマホは縦積み / 768px 以上は項目名と値を横並び */
+.row {
+  display: grid;
+  gap: var(--space-1);
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+@media (min-width: 768px) {
+  .row {
+    grid-template-columns: 8em 1fr;
+    gap: var(--space-6);
+  }
+}
+
+.term {
+  color: var(--color-accent);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.notes {
+  display: grid;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}

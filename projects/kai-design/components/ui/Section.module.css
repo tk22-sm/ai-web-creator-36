@@ -7,6 +7,15 @@
   border-top: 1px solid var(--color-border);
 }
 
+/* compact：作品詳細ページ用。スマホ約56px〜PC約80px */
+.compact {
+  padding-block: clamp(3.5rem, 2.75rem + 3vw, 5rem);
+}
+
+.compact .header {
+  margin-bottom: var(--space-8);
+}
+
 .inner {
   max-width: calc(var(--content-max) + var(--gutter) * 2);
   margin-inline: auto;

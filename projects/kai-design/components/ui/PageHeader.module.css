@@ -1,0 +1,38 @@
+.header {
+  padding-block: var(--space-12) var(--space-12);
+}
+
+@media (min-width: 1024px) {
+  .header {
+    padding-block: var(--space-16) var(--space-16);
+  }
+}
+
+.inner {
+  max-width: calc(var(--content-max) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Section の英語ラベルと同じ見た目（Home との統一感を保つ） */
+.eyebrow {
+  color: var(--color-accent);
+  font-family: var(--font-heading);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* 下層ページの h1 は Home の Hero ほど大きくせず、Section の h2 より一段大きくする */
+.title {
+  max-width: 20em;
+  margin-top: var(--space-3);
+  font-size: clamp(2rem, 1.5rem + 2.2vw, 3.25rem);
+}
+
+.lead {
+  max-width: 40em;
+  margin-top: var(--space-6);
+  color: var(--color-text-muted);
+}

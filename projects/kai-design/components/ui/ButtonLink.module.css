@@ -61,4 +61,9 @@
   .button:hover .arrow {
     transform: translateX(4px);
   }
+
+  /* 外部リンクは右上へ動かし、「別のサイトへ移動する」ことを示す */
+  .button:hover .arrowExternal {
+    transform: translate(2px, -2px);
+  }
 }

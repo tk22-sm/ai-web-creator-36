@@ -149,3 +149,104 @@
 - カード全体をクリック可能にする「疑似要素を広げる」手法と、`:has()` によるカード単位のフォーカス表示（非対応ブラウザでリングが消えないよう `@supports` で囲む）。
 - コンテナクエリ単位（`cqi`）で、見出しを「列の幅にちょうど収まる大きさ」にする方法。
 - `images.unoptimized` 環境での `next/image` の役割（最適化はされないが、寸法指定によるレイアウトのずれ防止・遅延読み込みは効く）。
+
+---
+
+## STEP 3：制作実績ページ（2026-10-29）
+
+### D-025 一覧ページの h1 は「制作実績」
+- 決定：`/projects` の h1・title は「制作実績」（ナビゲーションの表記と一致させる）。導入文で「自主制作の架空企業・架空店舗サイトであり、実際の受託案件ではない」ことを明示する。
+- 比較：仕様書 4章・Home のリンク文に合わせた「自主制作一覧」→ レビューで不採用。
+- 残課題：Home の Selected Projects のリンク文は「自主制作一覧を見る」のまま（STEP 3 では Home を変更しない方針のため）。表記をそろえるかは別途判断する。
+
+### D-026 詳細ページは generateStaticParams + dynamicParams = false + generateMetadata
+- `generateStaticParams`：`projects` 配列から `{ slug }` の一覧を返し、ビルド時に `out/projects/ki-to-hibi.html` などを生成する。
+- `dynamicParams = false`：静的書き出しでは「リクエスト時に新しいページを作る」ことができない（Next.js 同梱ドキュメントの静的書き出しガイドで `dynamicParams: true` は非対応と明記）。生成していない slug は 404 になることをコードでも明示する。
+- `generateMetadata`：title「作品名（自主制作）」、description に種別・要約・架空案件の注記を入れる。
+- ページ内でも `notFound()` を呼ぶ：通常は到達しないが、`project` が `undefined` でないことを TypeScript に伝える役割がある（型の絞り込み）。
+- props の型は Next.js 16 が生成する `PageProps<"/projects/[slug]">`（`params` は Promise なので await する）。
+- 比較：ki-to-hibi の施工事例詳細は `dynamicParams` を指定していない → 静的書き出しでは指定がなくても動くが、意図を明示するため Kai Design では書く。
+
+### D-027 共通部品の追加と、既存部品の最小限の拡張
+- 追加：
+  - `components/ui/PageHeader`：下層ページの冒頭（英語ラベル＋h1＋導入文）。STEP 4 の about / contact / privacy でも使う。
+  - `components/ui/Breadcrumb`：`nav[aria-label]` + `ol`、現在ページは `aria-current="page"`、区切り記号は CSS で描き読み上げない。
+  - `components/projects/ProjectGrid`：Home・/projects・詳細ページの「他の制作実績」で同じ並べ方を使うため、SelectedProjects のグリッドを切り出した（CSS は `git mv` で移動）。
+  - `components/projects/ProjectOverview`・`CaseStudyContent`：詳細ページの概要（`dl`）とケーススタディ本文。
+- 拡張（すべて省略時は従来どおりの動作）：
+  - `ProjectCard`：`headingLevel`（h2 / h3）、`imageLoading`（eager / lazy）。
+  - `ProjectGrid`：`eagerCount`。`next dev` で「/projects の1枚目の画像が LCP なのに遅延読み込み」と警告が出たため、/projects の1行目（2件）だけ eager にした。
+  - `Section`：`spacing="compact"`（詳細ページ用。スマホ約56px〜PC約80px）。
+  - `ButtonLink`：`external`（新しいタブで開く、↗ と「（新しいタブで開きます）」の読み上げ用テキスト、`rel="noopener noreferrer"`）。
+- Home への影響：変更前後の Home を 375 / 768 / 1280px で撮影し、ピクセル単位で比較して差分 0 を確認した。
+
+### D-028 ケーススタディのデータ設計と情報源の区別
+- 型：`CaseStudy`（background / target / design / development / quality / reflection、すべて任意）。値がある項目だけ詳細ページに表示する（仕様書 7章「実際に存在する内容だけ表示」）。
+- 各項目の `basis`（根拠）を必須にし、本文の前に表示する。設計資料の「計画・設計意図」と、ソースコードで確認できる「実装の事実」を読者が区別できるようにするため。
+- 文章は `data/case-studies/<slug>.ts` に作品ごとのファイルで管理する。各サイトを更新したら、そのファイルだけを直せばよい。
+- 情報源：
+  - MELLOW COFFEE：制作時の設計資料「AIWC36_Phase2_MELLOW_COFFEE_Wireframe_Process.pptx」（2026-10-29 共有）を正式な参考資料とする。目的・ターゲット・課題・コンセプト・CTA・サイト構成・UI の選定理由・学びは資料から、Development はソースコード（index.html / script.js / style.css）から。資料のサイト構成・必要情報（設備5項目、駐車場・段差）・3つのUIが実装されていることをコードで照合済み。
+  - 木と日々：Background・Target・Design は STEP 3 計画の提案文を暫定採用（サイトのコピーとページ構成から整理）。Development はソースコードで確認できる事実のみ。
+  - Quality（実施した確認）は両作品とも記録がないため非表示。Reflection は MELLOW COFFEE のみ（設計資料の「今回の学び」）。
+- 作らないもの：成果数値・顧客の声・実案件のような表現・確認できていないアクセシビリティ対応。
+
+### D-029 `app/not-found.tsx` を STEP 3 で追加（D-009 の残課題を解消）
+- 理由：`dynamicParams = false` により存在しない slug で 404 画面が表示されるようになったため、STEP 6 の予定を前倒しした。
+- 内容：共通レイアウト内に、ダークテーマ・日本語の404（トップページ・制作実績への導線）。静的書き出しで `out/404.html` として出力される。
+- 確認：`/projects/unknown` が HTTP 404 を返し、背景色が `#111214`（Next.js 既定画面の白背景にならない）。
+
+### D-030 今回は掲載しないもの
+- スマホ表示のスクリーンショット：追加しない（利用権の確認対象を増やさないため）。
+- GitHub リポジトリへのリンク：掲載を保留する。
+- 外部リンク（公開サイト）は新しいタブで開き、そのことを ↗ と読み上げ用テキストで伝える。URL も文字で併記する。
+
+### D-031 MY SOLO（Products）は独立管理する案Bを基本方針とする（記録のみ・未実装）
+- D-024 の2案のうち、仕様書 3章「Products は独立した分類」に合わせて案B（`types/product.ts`・`data/products.ts`・Products 用のルート）を基本方針とする。
+- 共通化の方針：slug・title・summary・techs・siteUrl・thumbnail などの共通項目は将来 `WorkBase` 型として切り出し、カード等の部品を共有する。ケーススタディは STEP 3 で `CaseStudy` 型として Project から独立させたため、Products でもそのまま使える。
+- Hero の代表作品は、Products 追加時に「どの分類のどの作品か」（例：`{ type: "product", slug: "my-solo" }`）で指定する形へ変更する。
+- ルート（`/products/[slug]` か別名か）・ナビゲーションの表記は MY SOLO の公開内容が決まった時点で決める。
+
+### D-032 別作業として記録：MELLOW COFFEE 本体への「架空店舗」注記
+- 公開中の MELLOW COFFEE（`projects/mellow-coffee`）には、架空店舗であることの注記がない（住所は「東京都○○区○○」等のダミー）。Kai Design 側では詳細ページの冒頭・概要・注記で明示した。
+- サイト本体への注記追加は STEP 3 の作業範囲（`projects/kai-design/` のみ）外のため、別作業として行う。
+
+### D-033 検証で使った手順と気づき
+- 確認用サーバー：`python3 -m http.server` は `/projects/ki-to-hibi` を `.html` に対応づけないため、Cloudflare Pages と同様に「`/path` → `/path.html`、無ければ `404.html` を 404 で返す」小さな Node サーバーを一時フォルダに用意して確認した（リポジトリには含めない）。
+- `next dev` を実行すると `AGENTS.md` が再び書き換わったため、D-013 のとおり元に戻した。
+- 公開サイト（`*.pages.dev`）への到達確認は、作業環境のネットワーク制限（プロキシで接続拒否）のため未実施。リンクの href・target・rel は確認済み。
+
+### D-034 根拠（basis）は管理用とし、画面には表示しない（STEP 3 レビューで D-028 を変更）
+- 変更内容：D-028 では各ケーススタディ項目の本文の前に根拠を表示していたが、一般の閲覧者には説明的すぎるため表示をやめた。
+- 維持するもの：`CaseStudyBlock.basis` は必須項目のまま残す。文章を書く・更新するときに「設計資料の計画」か「ソースコードで確認した実装」かを必ず記録するため（データ管理・レビュー用）。ビルド結果の HTML に根拠の文言が含まれないことを確認した。
+- 混同を防ぐ方法（表示側）：
+  - 本文の書き分け：想定は「想定しました」、設計の考え方は「〜を目的に／〜しました」、実装済みの事実は「実装しました／しています」。
+  - セクションの分け方：Design は設計の考え方、Development は実装した内容。Target の箇条書きは「想定した不安」と見出しを付ける。
+  - 文中の「設計資料のサイト構成どおりに」は「設計したサイト構成どおりに」に修正（閲覧者に内部資料名を意識させない）。
+- 維持する注記：自主制作・架空案件であることの注記（ページ冒頭・作品概要・注記欄）は変更なし。
+
+### D-035 「他の制作実績」カード画像の遅延読み込みは維持する
+- 現象：ページ全体のスクリーンショットで、ページ下部のカード画像が空白に写った。
+- 原因：`loading="lazy"` の画像は画面に近づくまで読み込まれない。全体撮影はスクロールせずに行うため、読み込みが始まっていなかった（表示不具合ではない）。
+- 確認：両作品 × 375 / 768 / 1280px で、少しずつスクロールした後に画像が読み込まれる（1600×1000px）ことを確認し、読み込み後のスクリーンショットを撮影した。
+- 判断：ページ下部の画像のため lazy を維持する（最初に表示する画像の通信を優先できる）。
+
+### 公開前の未解決事項（STEP 3 時点で更新）
+- [ ] MELLOW COFFEE・木と日々のスクリーンショットに含まれる写真の利用権確認（D-020）。確認できるまで公開可能と判断しない。
+- [ ] About の経歴・文章の最終確認。
+- [x] ~~`/projects`・`/projects/[slug]` の実装~~（STEP 3 で実装）
+- [ ] 未作成ページ `/about`・`/contact`・`/privacy` の実装（STEP 4）。
+- [ ] Journal に掲載する公開済み note 記事・note プロフィールの URL。
+- [ ] 木と日々のケーススタディ（Background・Target・Design）の本人による確認・更新（暫定採用。D-028）。
+- [ ] Quality（実施した確認）・木と日々の Reflection の情報提供（記録が得られたら追加）。
+- [ ] MELLOW COFFEE 本体への「架空店舗」注記（別作業。D-032）。
+- [ ] Home のリンク文「自主制作一覧を見る」と /projects の h1「制作実績」の表記をそろえるか（D-025）。
+- [ ] 公開サイトへの外部リンクの到達確認（作業環境では未確認。D-033）。
+
+### 学習ポイント（SNS・note 向けメモ）
+- 静的書き出しでの動的ルート：`generateStaticParams` が「ビルド時に作るページの一覧」を返し、`dynamicParams = false` で「それ以外は存在しない」と宣言する。サーバーが無くても `/projects/[slug]` が成り立つ仕組み。
+- `notFound()` の2つの役割：404 にすることと、TypeScript の型の絞り込み。
+- 「事実と計画を分けて書く」データ設計：`basis`（根拠）を必須項目にして、型で書き忘れを防ぐ。画面に出すかどうかは別の判断（管理用の情報と、閲覧者に見せる情報を分ける。D-034）。
+- 遅延読み込み（`loading="lazy"`）の画像は、スクロールせずに撮った全体スクリーンショットでは空白に写る。表示不具合と区別するには、スクロール後の読み込み状態（`naturalWidth`）を確認する。
+- 見出しレベルを props で切り替える部品（`const Heading = headingLevel` と大文字の変数にする理由）。
+- 共通部品を切り出すときは、変更前後のスクリーンショットをピクセル比較して「見た目が変わっていない」ことを確かめる。
+- `as const satisfies` で、設定配列のキーが型（`keyof CaseStudy`）と一致するかをチェックする方法。

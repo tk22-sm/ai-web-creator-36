@@ -35,8 +35,62 @@ export type Project = {
   techs: readonly string[];
   /** 公開サイトのURL */
   siteUrl: string;
-  /** 一覧カード用の画像 */
+  /** 一覧カード用の画像。詳細ページのメイン画像にも使う */
   thumbnail: ProjectImage;
   /** Home の Selected Projects に表示するか */
   featured: boolean;
+  /** ページ・セクション構成（詳細ページの Overview に表示） */
+  structure: readonly string[];
+  /** 閲覧者に伝えるべき注記（例：「問い合わせフォームはデモで送信されません」）。任意 */
+  notes?: readonly string[];
+  /** 詳細ページ（/projects/[slug]）のケーススタディ */
+  caseStudy: CaseStudy;
+};
+
+/** 「見出し＋説明」の形で並べる項目（工夫した点など） */
+export type CaseStudyItem = {
+  title: string;
+  body: string;
+};
+
+/**
+ * ケーススタディの1項目分（Background・Design など）。
+ *
+ * paragraphs（段落）・list（箇条書き）・items（見出し＋説明のリスト）を必要な分だけ持つ。
+ * 表示順は paragraphs → list → items。
+ * basis（根拠）は必須にしている。設計資料に書かれた「計画」と、ソースコードで確認できる
+ * 「実装の事実」を混同しないよう、文章を書く・更新するときに情報源を必ず記録するため。
+ * basis は管理用の項目で、画面には表示しない（D-034。STEP 3 レビューで表示をやめた）。
+ */
+export type CaseStudyBlock = {
+  /** 情報の根拠（管理用・非表示）。例：「制作時の設計資料に基づく」「ソースコードで確認できる実装」 */
+  basis: string;
+  paragraphs?: readonly string[];
+  /** 箇条書き。listLabel はリストの前に置く短い見出し（例：「想定した不安」） */
+  list?: readonly string[];
+  listLabel?: string;
+  items?: readonly CaseStudyItem[];
+};
+
+/**
+ * 作品詳細のケーススタディ（仕様書 7章）。
+ *
+ * すべて任意項目。確認できた情報がある項目だけを書き、無い項目は詳細ページに表示しない。
+ * 未実施の調査・未計測の成果・顧客の声は書かない。
+ * Overview と Links は Project の基本項目（kind・techs・siteUrl など）から作るため、ここには含めない。
+ * 将来の Products（MY SOLO）でも同じ型を使い回せるよう、Project とは別の型にしている（D-024・D-031）。
+ */
+export type CaseStudy = {
+  /** 制作の背景・目的 */
+  background?: CaseStudyBlock;
+  /** 想定ターゲットと課題。すべて「想定（仮説）」であり、実査の結果ではない */
+  target?: CaseStudyBlock;
+  /** 情報設計・UI の工夫 */
+  design?: CaseStudyBlock;
+  /** 実装の工夫 */
+  development?: CaseStudyBlock;
+  /** 実際に行った確認・検証 */
+  quality?: CaseStudyBlock;
+  /** 学び・今後の課題 */
+  reflection?: CaseStudyBlock;
 };
