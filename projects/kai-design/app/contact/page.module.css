@@ -1,0 +1,11 @@
+/* PageHeader と同じ最大幅・左右余白にそろえ、左端の位置を一致させる */
+.body {
+  max-width: calc(var(--content-max) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding: 0 var(--gutter) var(--section-gap);
+}
+
+/* フォームは1行が長くなりすぎると入力しにくいため、本文と同程度の幅に抑える */
+.body > * {
+  max-width: 40rem;
+}

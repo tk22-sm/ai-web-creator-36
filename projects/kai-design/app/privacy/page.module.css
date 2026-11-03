@@ -1,0 +1,84 @@
+/* 草案であることの注記。架空案件の注記（ProjectOverview）と同じ見た目にそろえる */
+.draftNotice {
+  max-width: 40em;
+  margin-top: var(--space-6);
+  padding: var(--space-4) var(--space-6);
+  border-left: 2px solid var(--color-accent);
+  background-color: var(--color-surface);
+}
+
+/* 本文は PageHeader と同じ左端にそろえ、1行の長さを抑えて読みやすくする */
+.body {
+  max-width: calc(var(--content-max) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding: 0 var(--gutter) var(--section-gap);
+}
+
+.section {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 44rem;
+  padding-block: var(--space-8);
+  border-top: 1px solid var(--color-border);
+}
+
+.heading {
+  font-size: var(--fs-xl);
+}
+
+/* 箇条書きの行頭にアクセント色の短い線（CaseStudyContent と同じ表現） */
+.list {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.list li {
+  position: relative;
+  padding-left: var(--space-6);
+}
+
+.list li::before {
+  content: "";
+  position: absolute;
+  top: 0.9em;
+  left: 0;
+  width: 0.75em;
+  height: 1px;
+  background-color: var(--color-accent);
+}
+
+.definitionList {
+  border-top: 1px solid var(--color-border);
+}
+
+.row {
+  display: grid;
+  gap: var(--space-1);
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+@media (min-width: 768px) {
+  .row {
+    grid-template-columns: 9em 1fr;
+    gap: var(--space-6);
+  }
+}
+
+.term {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.link {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--color-accent-hover);
+  }
+}
