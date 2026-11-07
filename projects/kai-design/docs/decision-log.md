@@ -378,3 +378,68 @@ Formspree への実送信・本番用フォームの作成・Cloudflare の設�
 - フォームのアクセシビリティの基本：ラベルの結び付け、エラー文の `aria-describedby`、`aria-invalid`、エラーの一覧へのフォーカス移動。
 - 連打対策は state ではなく ref で判定する理由（state の更新は次の描画まで反映されない）。
 - テストで気づいたこと：Next.js は画面遷移を読み上げるための要素（`role="alert"`）を自動で追加するため、テストで `[role=alert]` を数えるときはフォーム内に範囲を絞る必要がある。
+
+---
+
+## STEP 4-B②（第1段階）：Formspree 連携の実装・モックテスト（2026-11-07）
+
+Formspree への実送信・管理画面の設定変更・本番用フォームの作成・Cloudflare の設定変更は行わない。
+
+### D-047 Formspree 公式ドキュメントで確認した仕様（2026-11-07 確認）
+公式ドキュメント（help.formspree.io）を閲覧するため、このリポジトリ用のクラウド作業環境で `help.formspree.io` だけを通信許可した（`formspree.io` 本体は許可していない＝実送信が起きない）。
+
+| 項目 | 確認内容 | 出典 |
+|---|---|---|
+| 送信先 | `https://formspree.io/f/<フォームID>` | api-errors/form-not-found |
+| JSON で結果を受け取る | `Accept: application/json` を付けた送信（AJAX）は、上限超過時に HTTP 429 を返す | form-and-project-settings/system-limits |
+| 送信回数の上限 | 1フォームあたり毎分20件。AJAX では送信後〜応答まで送信ボタンを無効にし、上限エラーは利用者に表示するよう推奨 | system-limits |
+| エラー応答 | JSON（RFC 9457 形式）。古いクライアント向けに `error`・`errors`（例：`FORM_NOT_FOUND`）も含む。存在しない・削除されたフォームは 404 | api-errors/form-not-found |
+| 公式の推奨 | 自前の fetch の代わりに `@formspree/ajax` ライブラリを推奨（必須ではない） | building-your-form/submit-forms-with-javascript-ajax |
+| ハニーポット | `_gotcha` という隠し入力欄に値が入った送信は、ボットとみなして黙って無視する。全プランで利用可 | building-your-form/honeypot-spam-filtering |
+| 返信先 | `name="email"` の値が通知メールの Reply-To になる。`email` 欄は1つだけにする（複数あるとエラー） | building-your-form/email-reply-to-address、troubleshooting/i-m-receiving-an-invalid-replyto-email-error |
+| 件名 | `subject` 欄の値が通知メールの件名になる | building-your-form/email-subject-line、special-fields |
+| Formshield | Formspree のスパム判定技術。機械学習のスマートフィルターと分類器（暗号資産・詐欺など）。強さの調整・分類器の切り替え（高度な設定）は Professional・Business プラン | advanced-features/advanced-spam-filtering |
+| ドメイン制限 | 「Restrict to Domain」（全プラン）：指定ドメイン以外からの送信をスパム扱いにする。`Referer` ヘッダーを使うため、`Referrer-Policy` は `strict-origin-when-cross-origin` より厳しくしない | form-and-project-settings/restrict-to-domain |
+| reCAPTCHA | フォームごとに無効化できる | form-and-project-settings/recaptcha-settings |
+| 無料プラン | 月50件、送信履歴の保存30日、通知先メール2件まで | account-management/account-limits |
+| フォームIDの扱い | フォームIDは HTML の `action` URL にそのまま書く前提（＝公開される識別子）。メールアドレスを隠すための仕組み。API キー（Forms API）は別物で、送信には不要 | troubleshooting/how-to-prevent-spam、the-forms-api/* |
+
+**公式ドキュメントで確認できなかったこと**：成功時の応答本文の形式（Formspree 公式ライブラリ `@formspree/core` 4.0.0 のコードでは `{ next: "..." }` を成功と判定）、`_gotcha` に値が入った送信に対して返る HTTP ステータス、422 など入力エラー時の具体的な本文、データの保存場所、送信時に取得する通信情報（IP アドレス等）、スパム判定・ハニーポットで弾かれた送信が月間件数に数えられるか。
+
+### D-048 Formspree 用の送信関数を自前の fetch で実装（追加パッケージなし）
+- `lib/formspree.ts`：`createFormspreeSubmitter(formId)` が ContactSubmitter を返す。`Accept: application/json`・`Content-Type: application/json` で JSON を POST。成功判定は HTTP 2xx のみ。429 → `rate-limited`、その他の 4xx → `rejected`、5xx → `server`、通信失敗 → `network`、15秒で中止（AbortController）→ `timeout`。
+- レスポンス本文は読まない・ログに出さない。サーバーのエラー文（英語）も画面に出さず、日本語の固定メッセージだけを表示する。
+- 送信データ：`name`・`email`（返信先）・`category`・`message`・`subject`（「Kai Design お問い合わせ（種類）」をコードで組み立て、自由入力は入れない）・`_gotcha`。同意チェックボックスの値は送らない。
+- `lib/contact-submit.ts` の `getContactSubmitter()` は、環境変数のフォームIDが有効なときだけ Formspree 用の送信関数を返す（未設定・不正な形式なら null ＝ 通信しない）。画面（ContactForm）は D-042 のとおり送信関数を呼ぶだけで、成功時だけ完了画面を表示する。
+- フォームIDは英数字4〜32文字だけを受け付ける（送信先URLの一部になるため、記号を含む値は未設定扱い）。
+- 比較：公式推奨の `@formspree/ajax` → DOM を直接書き換えるライブラリで、React の画面・日本語表示・既存の二重送信防止と役割が重なるため不採用。`@formspree/react` → 追加パッケージになるため不採用。
+
+### D-049 テスト用と本番用の切り替えは環境変数で行う
+- `NEXT_PUBLIC_FORMSPREE_FORM_ID`：フォームID。空なら「準備中」（通信しない）。
+- `NEXT_PUBLIC_FORMSPREE_ENV`：`production` と明示したときだけ本番扱い。それ以外（空・誤記を含む）は test 扱いとし、画面に「テスト用の送信先に接続されています」と表示する（設定漏れで本番扱いにならないよう安全側に倒す）。
+- 想定する使い分け：手元（`.env.local`）と Cloudflare のプレビュー環境＝テスト用フォームID＋`test`、Cloudflare の本番環境＝本番用フォームID＋`production`（Cloudflare の設定は STEP 4-B② の後段階で、承認後に行う）。
+- `NEXT_PUBLIC_` の値はビルド時に JavaScript へ書き込まれ、誰でも読める。フォームIDは公開される識別子なので問題ないが、秘密情報は入れない。値を変えたら再ビルドが必要。フォームIDを設定しない通常のビルドには、フォームIDが含まれないことを確認した。
+- `.env.example`（値は空）を追加し、`.gitignore` に `!.env.example` を追加。`.env.local`・`.env`・`.env.production` は引き続き Git の管理対象外であることを確認した。
+
+### D-050 ハニーポット（`_gotcha`）を採用
+- 公式仕様（D-047）で全プラン対応・サーバー側で判定されることを確認したため採用した。Formspree の Formshield（スパム判定）と組み合わせる前提。
+- 実装：`display: none` の入れ物に入れ、`aria-hidden="true"`・`tabIndex={-1}`・`autoComplete="off"`。画面・Tab 移動・読み上げのすべてから外れることをテストで確認した。CSS が読み込まれない場合に備え「この欄は空のままにしてください」とラベルを付けた。
+- 値は state に持たず、送信時に ref で読む。値が入っていても画面側では判定せず、そのまま Formspree に送る（判定は公式の仕組みに任せる）。
+- 注意：公式は「`_gotcha` を知っているスパムもある」としており、項目名を自由に決められる独自ハニーポットは Business プランの機能。
+
+### 公開前の未解決事項（STEP 4-B② 第1段階 時点で更新）
+- [ ] 作品スクリーンショット内の写真の利用権確認（D-020）。確認できるまで公開可能と判断しない。
+- [x] ~~Formspree 送信関数・ハニーポット・`.env.example`~~（STEP 4-B② 第1段階。モックテストのみ）
+- [ ] テスト用フォームでの実送信テスト（本人の承認後）：通知メールの到達、Reply-To・件名、送信履歴、ハニーポットに値を入れた送信の扱い、Formshield の判定。
+- [ ] 本番用フォームの作成、Formspree の「Restrict to Domain」の設定（公開ドメイン確定後）、Cloudflare の環境変数の設定（承認後）。
+- [ ] D-047 の「確認できなかったこと」（成功時の応答形式、`_gotcha` 時のステータス、データの保存場所、取得する通信情報、スパム送信が月間件数に数えられるか）。
+- [ ] Privacy の法的な最終確認（国外サービスの利用、第三者提供と委託、運営者表記、開示等の請求）、Cloudflare のアクセス解析・Cookie 設定、受信メールの保管期間、制定日。
+- [ ] 実機・読み上げソフト・Safari・Firefox での確認。
+- [ ] SNS・note 専用アカウントの URL、木と日々のケーススタディの本人確認（D-028）、MELLOW COFFEE 本体への注記（D-032）、Home のリンク文の表記（D-025）、外部リンクの到達確認（D-033）。
+
+### 学習ポイント（SNS・note 向けメモ）
+- 公式ドキュメントで「確認できたこと」と「確認できなかったこと」を分けて記録すると、あとで仕様が変わったときに見直す場所が分かる。
+- `fetch` にはタイムアウトが無いので、AbortController で一定時間後に中止する。中止なのか通信エラーなのかは `signal.aborted` で区別できる。
+- `NEXT_PUBLIC_` の環境変数はビルド時に埋め込まれる（秘密情報を入れてはいけない理由）。`process.env.NEXT_PUBLIC_〜` とドットでつないで書かないと置き換わらない。
+- `type="email"` の入力欄は、ブラウザが前後の空白を自動で取り除く（HTML の仕様）。テストの期待値を書くときに気づいた。
+- 実通信を絶対に起こさないテストの作り方：fetch をモックに差し替え、本物の fetch は「呼ばれたら失敗」にしておく。ブラウザのテストでは外部への通信をすべて横取りする。

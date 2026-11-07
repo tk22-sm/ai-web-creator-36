@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import {
   CONTACT_FAILURE_MESSAGES,
+  getContactFormMode,
   getContactSubmitter,
+  type ContactFormMode,
   type ContactSubmitFailureReason,
   type ContactSubmitter,
 } from "@/lib/contact-submit";
@@ -51,10 +53,13 @@ const FIELD_IDS: Record<ContactFieldName, string> = {
 
 type ContactFormProps = {
   /**
-   * 送信関数。省略時は getContactSubmitter() の結果を使う（STEP 4-B① では null = 準備中）。
+   * 送信関数。省略時は getContactSubmitter() の結果を使う
+   * （フォームIDが環境変数に設定されていれば Formspree、未設定なら null = 準備中）。
    * テスト時に成功・失敗を再現する送信関数を渡せるよう、外から差し替え可能にしている。
    */
   submitter?: ContactSubmitter | null;
+  /** 接続状態。省略時は getContactFormMode() の結果（"test" のときは画面に「テスト用」と表示する） */
+  mode?: ContactFormMode;
 };
 
 /**
@@ -72,7 +77,10 @@ type ContactFormProps = {
  * セキュリティ：入力値は React の {} 表示と value 属性でだけ扱い、HTML として挿入しない
  * （dangerouslySetInnerHTML は使わない）。エラーサマリーにも入力値は表示しない。
  */
-export default function ContactForm({ submitter = getContactSubmitter() }: ContactFormProps) {
+export default function ContactForm({
+  submitter = getContactSubmitter(),
+  mode = getContactFormMode(),
+}: ContactFormProps) {
   const [values, setValues] = useState<ContactFormValues>(EMPTY_CONTACT_FORM);
   const [errors, setErrors] = useState<ContactFormErrors>({});
   const [status, setStatus] = useState<FormStatus>({ kind: "idle" });
@@ -84,6 +92,8 @@ export default function ContactForm({ submitter = getContactSubmitter() }: Conta
   const submittingRef = useRef(false);
   const summaryRef = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLHeadingElement>(null);
+  /** 隠し入力欄（ハニーポット）。値は state に持たず、送信時に直接読む（人は入力しないため） */
+  const honeypotRef = useRef<HTMLInputElement>(null);
 
   const isSubmitting = status.kind === "submitting";
   const errorFields = CONTACT_FIELD_ORDER.filter((field) => errors[field]);
@@ -162,7 +172,8 @@ export default function ContactForm({ submitter = getContactSubmitter() }: Conta
     setStatus({ kind: "submitting" });
     try {
       const { name, email, category, message } = normalizeContactForm(values);
-      const result = await submitter({ name, email, category, message });
+      const honeypot = honeypotRef.current?.value ?? "";
+      const result = await submitter({ name, email, category, message, honeypot });
       setStatus(result.ok ? { kind: "success" } : { kind: "error", reason: result.reason });
     } catch {
       // 送信関数の中で想定外の例外が起きた場合も、通信できなかったものとして扱う
@@ -195,6 +206,30 @@ export default function ContactForm({ submitter = getContactSubmitter() }: Conta
           現在、このフォームからの送信は準備中です。入力内容の確認はできますが、送信はされません。
         </p>
       )}
+      {/* テスト用フォームに接続したビルド（ローカル・プレビュー）だけに表示する。本番（production）では表示しない */}
+      {submitter && mode === "test" && (
+        <p className={styles.notice}>
+          このフォームはテスト用の送信先に接続されています。動作確認以外の目的では送信しないでください。
+        </p>
+      )}
+
+      {/*
+        ハニーポット（_gotcha）：ボットだけが入力しやすい隠し入力欄（Formspree 公式の仕組み。D-047）。
+        display: none で画面・Tab 移動・読み上げのすべてから外し、人が誤って入力しないようにする。
+        CSS が読み込まれなかった場合に備えて、ラベルで「空のままに」と案内する。
+      */}
+      <div className={styles.honeypot} aria-hidden="true">
+        <label htmlFor="contact-gotcha">この欄は空のままにしてください</label>
+        <input
+          ref={honeypotRef}
+          id="contact-gotcha"
+          name="_gotcha"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          defaultValue=""
+        />
+      </div>
 
       {errorFields.length > 0 && (
         <div
