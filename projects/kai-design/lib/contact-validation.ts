@@ -42,8 +42,22 @@ export const CONTACT_LIMITS = {
   messageMax: 2000,
 } as const;
 
-/** ご相談の種類の選択肢（任意項目） */
+/** ご相談の種類の選択肢（任意項目）。Formspree に送る値（`category`・通知メールの件名）でもある */
 export const CONTACT_CATEGORIES = ["新規制作", "コーディング", "修正・改善", "その他"] as const;
+
+export type ContactCategory = (typeof CONTACT_CATEGORIES)[number];
+
+/**
+ * ご相談の種類を画面に表示するときの文言（D-061・文言監査 L7）。
+ * 一般の方にも意味が伝わるよう補足を付けるが、送信する値は CONTACT_CATEGORIES のまま変えない
+ * （通知メールの件名・送信データの形式を変えないため）。
+ */
+export const CONTACT_CATEGORY_LABELS: Readonly<Record<ContactCategory, string>> = {
+  新規制作: "新規制作",
+  コーディング: "コーディング（デザインデータからの制作）",
+  "修正・改善": "修正・改善",
+  その他: "その他",
+};
 
 /** エラーを表示する順番（画面上の並び順と一致させる） */
 export const CONTACT_FIELD_ORDER: readonly ContactFieldName[] = [
@@ -133,7 +147,7 @@ export function validateContactField(
   switch (field) {
     case "name": {
       if (values.name === "") return "お名前を入力してください。";
-      if (SINGLE_LINE_FORBIDDEN.test(values.name)) return "お名前に使用できない文字が含まれています。";
+      if (SINGLE_LINE_FORBIDDEN.test(values.name)) return "お名前に入力できない文字が含まれています。ほかの文書からコピーした場合は、手で入力し直してください。";
       if (countCharacters(values.name) > CONTACT_LIMITS.nameMax) {
         return `お名前は${CONTACT_LIMITS.nameMax}文字以内で入力してください。`;
       }
@@ -162,7 +176,7 @@ export function validateContactField(
     }
     case "message": {
       if (values.message === "") return "ご相談内容を入力してください。";
-      if (MULTI_LINE_FORBIDDEN.test(values.message)) return "ご相談内容に使用できない文字が含まれています。";
+      if (MULTI_LINE_FORBIDDEN.test(values.message)) return "ご相談内容に入力できない文字が含まれています。ほかの文書からコピーした場合は、手で入力し直してください。";
       const length = countCharacters(values.message);
       if (length < CONTACT_LIMITS.messageMin) {
         return `ご相談内容は${CONTACT_LIMITS.messageMin}文字以上で入力してください。`;

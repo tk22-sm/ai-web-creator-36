@@ -15,6 +15,7 @@ import {
 import { getResubmitCooldownMs, nextResubmitAllowedAt, remainingSeconds } from "@/lib/contact-cooldown";
 import {
   CONTACT_CATEGORIES,
+  CONTACT_CATEGORY_LABELS,
   CONTACT_FIELD_ORDER,
   CONTACT_LIMITS,
   countCharacters,
@@ -382,7 +383,7 @@ export default function ContactForm({
             <option value="">選択してください</option>
             {CONTACT_CATEGORIES.map((category) => (
               <option key={category} value={category}>
-                {category}
+                {CONTACT_CATEGORY_LABELS[category]}
               </option>
             ))}
           </select>
