@@ -522,3 +522,55 @@ Formspree への実送信・管理画面の設定変更・本番用フォーム�
 - フォームID・送信先URL・Formspree のエラー文（`FORM_NOT_FOUND` など）は表示しない（モックテストで確認）。待ち時間は設けない。
 - 未確認：フォームが無効化（INACTIVE）された場合に返るステータス（応答本文の `errors[].code` は読まない方針のため、404・410 以外は従来どおり「受け付けられませんでした」になる）。
 - 運用：この表示が出る場合はサイト側の設定ミスのため、公開後の確認手順（docs/pre-launch-checklist.md A6）で検知する。
+
+---
+
+## STEP 4-C：CSP（方式A）とフォームのネイティブ送信対策（2026-11-07）
+
+### D-059 CSP は「全ページのハッシュを1つにまとめた共通の CSP」を `_headers` の `/*` に付ける（方式A）
+- 前提（公式で確認した事実）：
+  - Next.js（16.4.3 付属文書）：静的書き出しでは nonce を使えない。本番では React・Next.js は `eval` を使わず、`'unsafe-eval'` は不要。`experimental.sri` は外部の JS ファイル用で、インラインスクリプトには効かない。静的書き出しでは `next.config` の `headers()` は使えない。
+  - Cloudflare Pages（Headers・Limits・Serving Pages・Redirects の各ページ）：`_headers` はルール最大100・1行2,000文字（行全体を数える）。1つの URL に複数のルールが一致すると全ルールのヘッダーが付き、同じヘッダーが2回付くと値がカンマで連結される。`_headers` 自体は配信されない。リダイレクトはヘッダーより先に処理される。Pages Functions の応答には `_headers` が効かない。一番上に `404.html` が無いと SPA として扱われる。`Referrer-Policy: strict-origin-when-cross-origin` と `X-Content-Type-Options: nosniff` は既定で付く。
+  - Formspree（Restrict to Domain）：Referer で送信元を判定する。Referrer-Policy は `strict-origin-when-cross-origin` が最も厳しい設定で、`no-referrer`・`same-origin` では迷惑メール扱いになる。
+- 採用理由：
+  - 404 を含むすべての URL・`_next/` の中のファイルに、同じ CSP が漏れなく付く（URL の書き方の違いに左右されない）。
+  - CSP を `/*` の1ルールだけに書くため、複数ルールによる値の連結（ポリシーが壊れる）が起きない。
+  - 許可されるのは、このサイトが出力した固定のインラインスクリプトだけ（現在10種）。別のページ用のハッシュも許可されることになるが、すべて自分のサイトのスクリプトであり、増えるリスクは小さいと判断した。
+- ページ別方式（以前の V3b）を採用しない理由：存在しない URL（404）に付ける方法が無い。`/*` と併用すると値が連結される。`/about`・`/about.html`・末尾の `/` などの書き方の違いに対応する必要がある。
+- CSP の内容（ハッシュ以外は固定）：`default-src 'none'`、`script-src 'self'`＋インラインスクリプトのハッシュ、`style-src 'self' 'unsafe-hashes'`＋`style="color:transparent"`（next/image が付ける）のハッシュ、`img-src`・`font-src`・`manifest-src` は `'self'`、`connect-src 'self' https://formspree.io/f/`、`base-uri 'none'`、`form-action 'none'`（D-060）、`frame-ancestors 'none'`、`object-src 'none'`、`upgrade-insecure-requests`。`'unsafe-inline'`・`'unsafe-eval'` は使わない。
+- その他のヘッダー：`Permissions-Policy`（カメラ・マイク・位置情報・支払い・USB を無効）、`X-Frame-Options: DENY`、`Cross-Origin-Opener-Policy: same-origin`。`Referrer-Policy` と `X-Content-Type-Options` は Cloudflare の既定値に任せる（重複させない）。HSTS は独自ドメインの方針が決まるまで付けない。違反の報告先（report-to）は付けない（外部の受信先と個人情報の扱いが増えるため）。
+- `connect-src` を `https://formspree.io/f/` に限る理由：送信に使うのは `/f/<フォームID>` だけ。`/` で終わるパスはその下のすべてに一致するため、フォームIDを CSP に書かずにテスト用・本番用で同じ CSP を使える。`'self'` は画面遷移時に読み込む `.txt`（RSC データ）に必要。
+- ビルド時の自動生成（ハッシュはビルドのたびに変わるため。コードを変えなくても buildId が変わる）：
+  - `npm run build` ＝ `next build && node scripts/generate-security-headers.mjs`。どちらかが失敗すればビルド全体が失敗し、Cloudflare は公開しない。
+  - 処理は `lib/csp.mjs`（純粋な関数。ビルド環境の TypeScript 対応に左右されないよう JavaScript で書く）。HTML の読み取りは正規表現で行う。React は属性値の `<` `>` `"` を文字参照に置き換えるため、タグの区切りを正規表現で確実に見分けられる。この前提が崩れた場合も、下記の整合性検査で止める。HTML 解析用のパッケージは追加しない。
+  - 書き出した `_headers` を読み直し、全 HTML から計算し直した CSP と完全に一致するかを確かめる。`npm run check:public` でも同じ照合を行う。
+- 安全側に止める条件（エラー文には値を出さず、ファイル名と理由だけを出す。失敗時は書きかけの `_headers` を消す）：
+  - 前提：`out/` が無い・HTML が無い、`404.html` が無い、`functions/` または `_worker.js` がある、`out/_headers` が既にある（`public/_headers` の混入・ビルドし直していない）。
+  - `<script>`：開始タグと終了タグの数、取り出せた数が一致しない。属性が読み取れない・想定外の属性（外部は `src`・`async`・`nomodule`、インラインは `id` だけ）。中に `<script`・`<!--` がある。中身が空。Next.js が出力する3種類（Turbopack の設定、RSC データの初期化、RSC データ）以外のインラインスクリプト。`/_next/static/…js` 以外の外部スクリプト。
+  - その他：`<style>`・`<iframe>`・`<object>`・`<embed>`・`<base>`・`<meta http-equiv>`、インラインのイベント属性（`onclick` など）、`javascript:` などのリンク、読み取れない文字参照、外部の画像・スタイルシートの読み込み、`color:transparent` 以外の `style` 属性、タグの区切りが読めない。
+  - 出力：ハッシュが0件、`unsafe-inline` などの禁止値を含む、`script-src` に `'self'` とハッシュ以外がある、1行が2,000文字を超える、ルールが100を超える、照合で一致しない。
+- 実例：テスト用の確認ページ（未知の `style` 属性あり）を含めてビルドすると、生成スクリプトが止まり `npm run build` が終了コード 1 になることを確認した。
+- Next.js を更新したとき：出力の構造が変わればビルドが止まる（壊れた CSP のまま公開されない）。更新時はローカルのブラウザテスト（CSP 違反0件）をやり直し、必要なら想定する構造を見直す。
+
+### D-060 フォームのネイティブ送信で個人情報が URL に付く問題の修正
+- 問題（STEP 4-B② の時点からあった）：`<form>` に `action`・`method` が無く、各入力欄に `name` があるため、JavaScript が動く前（読み込み中）・読み込みに失敗したとき・無効のときに送信ボタンを押すと、ブラウザ標準の送信（GET）で `/contact?_gotcha=&name=…&email=…&category=&message=…` に移動していた（main で再現を確認）。お名前・メールアドレス・相談内容が閲覧履歴やアクセスログに残るおそれがあった。
+- 対策（3重。CSP だけに頼らない）：
+  1. **送信ボタンを、JavaScript が動き出すまで `disabled` にする**（`useSyncExternalStore` で判定。サーバーでの HTML 生成時と Hydration 中は `disabled`、その後に有効になるため、Hydration の食い違いは起きない）。既定の送信ボタンが `disabled` のフォームは、クリックでも Enter キーでも送信されない（HTML の仕様）。その間は送信ボタンの直前に、控えめな案内（見出し「お問い合わせフォームの準備中です」、本文「ただいま送信の準備をしています。少しお待ちください。」、補足「準備が完了しない場合は、ページを再読み込みしてください。」）を表示し、ボタンの `aria-describedby` でも関連付ける。案内は一般の利用者向けとし、JavaScript・ブラウザの設定などの技術的な説明は書かない（レビューで指定）。押せない状態は、透明度ではなく背景・枠・文字色を入力欄と同じ落ち着いた色にして示す。送信先が未設定のビルド（公開前の確認用）では、フォーム上部の「送信は準備中です」の案内と重ならないよう、この案内は表示しない（送信ボタンの `disabled` は維持する。文言監査 L12）。
+  2. **`method="post"`**：それでもブラウザ標準の送信が起きた場合でも、入力内容が URL に付かない。
+  3. **CSP の `form-action 'none'`**：ブラウザ標準の送信そのものを止める。JavaScript による送信（`fetch`）は `form-action` の対象外のため影響しない（`connect-src` で制限）。
+- 維持したもの：JavaScript が動いた後の動作（入力チェック・エラー表示・フォーカス移動・送信中と待ち時間中の `aria-disabled`・Formspree への送信・再送制限）は変えていない。`name` 属性は入力処理（`handleChange`）と自動入力のために残す。
+- 比較：`name` 属性を外す案 → 入力処理の書き換えと自動入力への影響があり、ボタンの `disabled` で送信自体を止められるため不採用。`<noscript>` で案内する案 → 「JavaScript は有効だが読み込みに失敗した」場合に表示されないため不採用。
+
+### テスト結果（D-059・D-060。すべてローカル。Formspree への通信はすべて横取りし、実送信なし）
+- ユニットテスト 106件成功（うち CSP 関連 57件：ハッシュ計算、文字参照、属性の読み取り、正常な出力、止める条件26種、CSP の組み立てと禁止値、`_headers` の生成と照合、古いハッシュ・ページ増減・手での書き換え・CSP の重複・2,000文字超え。生成スクリプトの実行：成功、想定外のスクリプト、古い `_headers`、ビルド後の HTML 変更、`404.html` 無し、`_worker.js`、`out/` 無し）。
+- 実際の Next.js 出力での確認：未設定・テスト用・本番用（架空ID）の3通りで `npm run build` が成功（HTML 9件、スクリプトのハッシュ10件、style のハッシュ1件、CSP の行は約900文字）。別のビルドの `_headers` との照合は不一致で止まる。出力をわざと改変した4通り（想定外のスクリプト・`<style>`・`onclick`・外部スクリプト）と、`_headers` が残ったままの再実行で止まり、`_headers` は残らない。
+- CSP を付けて配信するブラウザテスト（Cloudflare の配信をまねた確認用サーバー）85件成功：3通りのビルドで9つの URL のステータスと CSP（1つだけ・`form-action 'none'`・`unsafe-*` なし）、favicon にも同じヘッダー、`/_headers` は 404、画面遷移6種（作品詳細を含む）、CSP 違反0件・エラー0件・外部通信0件、フォーム送信（テスト用・本番用）、CSP が止めるもの5種。JavaScript 無効、JavaScript の読み込み失敗（CSP あり／なし）、JavaScript の読み込みが遅い場合。
+- 既存の回帰テスト：Formspree 連携 96件、STEP 4-B① の 45件・55件、すべて成功（CSP を付けた配信で実行。55件はテスト用の確認ページを使うため、CSP なしで実行）。
+- 表示：7ページ×3幅（375・768・1280px）で、JavaScript が動いた後の表示は main とピクセル差分0。`next dev` で Hydration エラーなし。lint・型チェック・`npm run check:public`（`_headers` の照合を含む）成功。
+- 残存リスク：
+  - Cloudflare 上での動作（404 の応答に `_headers` が付くか、そのときのステータスコード、ビルド環境の Node.js のバージョン）は未検証（A2）。
+  - 自分のサイト（`'self'`）の JS や、許可したハッシュのスクリプトは止められない（依存パッケージの管理 A8 で防ぐ）。Formspree の `/f/` の下なら別のフォームにも送れてしまう。
+  - CSP は対応しているブラウザでしか効かない（ボタンの `disabled` と `method="post"` は HTML の仕組みなので、CSP に対応していなくても効く）。
+  - JavaScript が動かない環境ではフォームを使えない（案内を表示する）。
+  - 違反の報告先を付けないため、公開後に CSP 違反が起きても自動では気づけない。Next.js の更新時はビルドが止まる可能性がある（安全側）。
+  - Safari・Firefox・実機では未確認。

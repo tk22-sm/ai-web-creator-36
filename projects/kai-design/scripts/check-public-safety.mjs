@@ -9,11 +9,13 @@
  * - Formspree の送信先URLにフォームIDが書かれている箇所（ソースのみ。テスト用の架空IDは除く）
  * - .env.example にフォームIDの値が書かれている
  * - 秘密鍵・GitHub トークン・AWS キーなど、代表的な秘密情報の形式
+ * - out/ がある場合：out/_headers があり、CSP が今のビルド結果と一致していること（D-059）
  * 見つかった値そのものは表示しない（ログに残さないため）。見つかったら終了コード 1 で終わる。
  */
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { CspBuildError, verifyHeadersFile } from "../lib/csp.mjs";
 
 const projectRoot = path.resolve(import.meta.dirname, "..");
 const extraDirs = process.argv.slice(2).map((d) => path.resolve(d));
@@ -63,6 +65,26 @@ for (const { file, kind } of listFiles()) {
       }
     }
   });
+}
+
+// ビルド結果のセキュリティヘッダー（D-059）：out/_headers が無い・古い場合は公開できない
+const outDir = path.join(projectRoot, "out");
+if (fs.existsSync(outDir)) {
+  const headersPath = path.join(outDir, "_headers");
+  if (!fs.existsSync(headersPath)) {
+    findings.push("out/_headers がありません（next build だけを実行した可能性。npm run build でビルドし直してください）");
+  } else {
+    const pages = fs
+      .readdirSync(outDir, { recursive: true })
+      .map(String)
+      .filter((f) => f.toLowerCase().endsWith(".html"))
+      .map((f) => ({ file: f.split(path.sep).join("/"), html: fs.readFileSync(path.join(outDir, f), "utf8") }));
+    try {
+      verifyHeadersFile(fs.readFileSync(headersPath, "utf8"), pages);
+    } catch (error) {
+      findings.push(`out/_headers ${error instanceof CspBuildError ? error.message : "を確認できません"}`);
+    }
+  }
 }
 
 if (findings.length > 0) {

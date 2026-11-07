@@ -210,3 +210,60 @@
   opacity: 0.6;
   cursor: progress;
 }
+
+/*
+ * JavaScript が動き出す前は押せない（disabled。D-060）。
+ * 透明度ではなく、背景・枠・文字色を「入力欄と同じ落ち着いた色」に変えて、押せないことを示す。
+ * :hover も同じ色に固定する（押せそうに見えないように）。
+ */
+.submit:disabled,
+.submit:disabled:hover {
+  border-color: var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* ---- 準備中の案内（送信ボタンの直前。JavaScript が動き出したら消える） ---- */
+.preparing {
+  display: grid;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+}
+
+.preparingTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+/* 準備中を示す小さな点。動きを減らす設定の場合は点滅しない */
+.preparingDot {
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--color-accent);
+  animation: preparing-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes preparing-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preparingDot {
+    animation: none;
+  }
+}

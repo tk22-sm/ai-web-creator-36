@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/generate-security-headers.mjs",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test lib/*.test.mjs",
+    "test": "node --test lib/*.test.mjs scripts/*.test.mjs",
     "check:public": "node scripts/check-public-safety.mjs"
   },
   "dependencies": {
