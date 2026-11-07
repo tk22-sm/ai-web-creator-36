@@ -27,7 +27,7 @@ export default function NotFound() {
       <div className={styles.actions}>
         <ButtonLink href="/">トップページへ戻る</ButtonLink>
         <ButtonLink href="/projects" variant="secondary">
-          制作実績を見る
+          作品一覧を見る
         </ButtonLink>
       </div>
     </>

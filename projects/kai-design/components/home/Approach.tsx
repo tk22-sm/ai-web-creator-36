@@ -27,7 +27,7 @@ const steps: readonly Step[] = [
   },
   {
     name: "Deliver",
-    focus: "適切な人へ価値を届ける",
+    focus: "必要な人へ価値を届ける",
     description: "見つけた価値が必要な人へ伝わるよう、構成とデザインに落とし込みます。",
   },
 ];

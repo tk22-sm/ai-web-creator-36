@@ -19,7 +19,7 @@ export default function Header() {
           Kai Design
         </Link>
 
-        <nav className={styles.desktopNav} aria-label="グローバルナビゲーション">
+        <nav className={styles.desktopNav} aria-label="メインメニュー">
           <NavLinks
             items={mainNavItems}
             listClassName={styles.list}

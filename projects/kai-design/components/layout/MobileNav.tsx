@@ -91,7 +91,7 @@ export default function MobileNav() {
         id={panelId}
         className={styles.panel}
         data-open={isOpen}
-        aria-label="グローバルナビゲーション"
+        aria-label="メインメニュー"
       >
         <NavLinks
           items={mainNavItems}

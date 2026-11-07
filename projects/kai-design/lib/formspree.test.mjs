@@ -100,6 +100,11 @@ describe("buildFormspreePayload（送信データ）", () => {
   it("ご相談の種類が未選択なら件名に「種類未選択」と入る", () => {
     assert.equal(buildFormspreePayload({ ...submission, category: "" }).subject, "Kai Design お問い合わせ（種類未選択）");
   });
+  it("「コーディング」は画面の補足付きの文言ではなく、従来の値のまま送る（D-061）", () => {
+    const payload = buildFormspreePayload({ ...submission, category: "コーディング" });
+    assert.equal(payload.category, "コーディング");
+    assert.equal(payload.subject, "Kai Design お問い合わせ（コーディング）");
+  });
 });
 
 describe("classifyFormspreeStatus（失敗理由の判定）", () => {

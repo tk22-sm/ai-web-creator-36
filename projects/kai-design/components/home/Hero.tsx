@@ -34,7 +34,7 @@ export default function Hero() {
           <p className={styles.note}>個人でWebサイトの制作・コーディングを行っています。</p>
 
           <div className={styles.actions}>
-            <ButtonLink href="/projects">制作実績を見る</ButtonLink>
+            <ButtonLink href="/projects">作品一覧を見る</ButtonLink>
             <ButtonLink href="/contact" variant="secondary">
               お問い合わせ
             </ButtonLink>

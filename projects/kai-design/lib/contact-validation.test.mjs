@@ -10,6 +10,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  CONTACT_CATEGORIES,
+  CONTACT_CATEGORY_LABELS,
   CONTACT_LIMITS,
   countCharacters,
   EMPTY_CONTACT_FORM,
@@ -107,7 +109,7 @@ describe("normalizeContactForm", () => {
 describe("入力形式の防御（制御文字・表示順の制御文字・D-054）", () => {
   it("お名前・メールアドレスは改行・タブ・NUL・表示順の制御文字を受け付けない", () => {
     for (const bad of ["山田\n太郎", "山田\t太郎", "山田\u0000", "山田\u202E太郎", "\u2066山田"]) {
-      assert.match(validateContactForm({ ...valid, name: bad }).name ?? "", /使用できない文字/, JSON.stringify(bad));
+      assert.match(validateContactForm({ ...valid, name: bad }).name ?? "", /入力できない文字/, JSON.stringify(bad));
     }
     assert.match(validateContactForm({ ...valid, email: "test\n@example.com" }).email ?? "", /形式/);
     assert.match(validateContactForm({ ...valid, email: "te\u202Est@example.com" }).email ?? "", /形式/);
@@ -117,7 +119,7 @@ describe("入力形式の防御（制御文字・表示順の制御文字・D-05
     assert.equal(validateContactForm({ ...valid, message: "1行目\n2行目\tタブあり" }).message, undefined);
     assert.equal(validateContactForm({ ...valid, message: "1行目\r\n2行目の相談です" }).message, undefined);
     for (const bad of ["相談内容です\u0000です", "相談内容です\u0007です", "相談内容です\u202Eです"]) {
-      assert.match(validateContactForm({ ...valid, message: bad }).message ?? "", /使用できない文字/, JSON.stringify(bad));
+      assert.match(validateContactForm({ ...valid, message: bad }).message ?? "", /入力できない文字/, JSON.stringify(bad));
     }
   });
 
@@ -127,5 +129,21 @@ describe("入力形式の防御（制御文字・表示順の制御文字・D-05
     assert.match(errors.name ?? "", /50文字以内/);
     assert.match(errors.message ?? "", /2000文字以内/);
     assert.ok(Date.now() - started < 2000);
+  });
+});
+
+describe("ご相談の種類：画面の文言と送信する値（D-061）", () => {
+  it("送信する値は従来どおり4種類のまま（送信データの形式を変えない）", () => {
+    assert.deepEqual([...CONTACT_CATEGORIES], ["新規制作", "コーディング", "修正・改善", "その他"]);
+  });
+  it("画面の文言は、コーディングだけ補足を付け、他は送信する値と同じ", () => {
+    assert.deepEqual(Object.keys(CONTACT_CATEGORY_LABELS), [...CONTACT_CATEGORIES]);
+    assert.equal(CONTACT_CATEGORY_LABELS["コーディング"], "コーディング（デザインデータからの制作）");
+    for (const value of ["新規制作", "修正・改善", "その他"]) assert.equal(CONTACT_CATEGORY_LABELS[value], value);
+  });
+  it("入力チェックは送信する値を受け付け、画面の文言そのものは値として受け付けない", () => {
+    const valid = { name: "テスト 太郎", email: "test@example.com", category: "コーディング", message: "ご相談内容のテストです。", consent: true };
+    assert.equal(validateContactForm(valid).category, undefined);
+    assert.match(validateContactForm({ ...valid, category: CONTACT_CATEGORY_LABELS["コーディング"] }).category ?? "", /選択肢から選んで/);
   });
 });

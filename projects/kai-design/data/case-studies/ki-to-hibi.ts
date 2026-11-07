@@ -56,16 +56,16 @@ export const kiToHibiCaseStudy: CaseStudy = {
     basis: "ソースコードで確認できる実装です。",
     items: [
       {
-        title: "Next.js による複数ページ構成と静的書き出し",
-        body: "Next.js（App Router）・React・TypeScript で複数ページを構成し、静的書き出しで Cloudflare Pages に公開しています。",
+        title: "Next.js による複数ページ構成",
+        body: "Next.js（App Router）・React・TypeScript で複数ページを構成しました。すべてのページを公開前にあらかじめ作っておく方式（静的書き出し）で、Cloudflare Pages に公開しています。",
       },
       {
         title: "施工事例をデータから生成",
-        body: "施工事例をデータファイルで管理し、詳細ページを generateStaticParams でビルド時に3件分生成しています。",
+        body: "施工事例の内容を1つのデータファイルで管理し、詳細ページ3件をそのデータから作る仕組み（generateStaticParams）にしています。データを追加することで、対応する詳細ページを生成できる構成です。",
       },
       {
-        title: "操作が必要な部品だけを Client Component に",
-        body: "FAQの開閉、スマートフォン用メニュー、トップへ戻るボタンなど、ブラウザ上の操作が必要な部品を Client Component として実装しています。",
+        title: "操作が必要な部品だけをブラウザで動かす",
+        body: "FAQの開閉、スマートフォン用メニュー、トップへ戻るボタンなど、画面上の操作が必要な部品だけを、ブラウザで動く部品（Client Component）として実装しています。操作が不要な部分は、ブラウザ側で動かす処理を増やさない構成にしています。",
       },
       {
         title: "デモであることを明示した問い合わせフォーム",
@@ -73,7 +73,7 @@ export const kiToHibiCaseStudy: CaseStudy = {
       },
       {
         title: "CSS Modules によるスタイル管理",
-        body: "コンポーネントごとに CSS Modules でスタイルを分け、クラス名の衝突を防いでいます。",
+        body: "部品（コンポーネント）ごとに見た目の指定（CSS）を分けて管理し、ほかの部品の見た目に影響しないようにしています（CSS Modules）。",
       },
     ],
   },
