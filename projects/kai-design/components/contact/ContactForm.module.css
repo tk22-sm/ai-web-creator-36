@@ -1,0 +1,207 @@
+.form {
+  display: grid;
+  gap: var(--space-8);
+}
+
+/* ---- 入力欄（既存トークンだけで作る。D-044） ---- */
+.input,
+.select,
+.textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  /* iOS で 16px 未満だと入力時に画面が拡大されるため、本文サイズ（1rem）を保つ */
+  font: inherit;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.textarea {
+  min-height: 12rem;
+  line-height: var(--lh-body);
+  resize: vertical;
+}
+
+/* 長い英数字（URL など）が続いても、入力欄の幅を超えて画面を崩さない */
+.input,
+.textarea {
+  overflow-wrap: anywhere;
+}
+
+@media (hover: hover) {
+  .input:hover,
+  .select:hover,
+  .textarea:hover {
+    border-color: rgb(245 245 242 / 0.32);
+  }
+}
+
+/* フォーカス中は globals.css のフォーカスリングに加え、枠線もアクセント色にする */
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible {
+  border-color: var(--color-accent);
+}
+
+/* エラー中は枠線をエラー色に（色だけでなくエラー文でも示す） */
+.input[aria-invalid="true"],
+.select[aria-invalid="true"],
+.textarea[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.countOver {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+/* ---- 同意チェックボックス ---- */
+.consent {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.consentRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+/* タップしやすい大きさ（ラベルを含めて 44px 前後）を確保 */
+.checkbox {
+  flex-shrink: 0;
+  width: 1.375rem;
+  height: 1.375rem;
+  margin-top: 0.2em;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+.checkbox[aria-invalid="true"] {
+  outline: 2px solid var(--color-danger);
+  outline-offset: 2px;
+}
+
+.consentLabel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.requiredBadge {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+.consentHint {
+  padding-left: calc(1.375rem + var(--space-3));
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+.consentError {
+  display: flex;
+  gap: var(--space-2);
+  color: var(--color-danger);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.inlineLink {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+@media (hover: hover) {
+  .inlineLink:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+/* ---- お知らせ・エラーサマリー・結果 ---- */
+.notice,
+.statusMessage {
+  padding: var(--space-4) var(--space-6);
+  border-left: 2px solid var(--color-accent);
+  background-color: var(--color-surface);
+}
+
+.summary,
+.errorMessage {
+  padding: var(--space-4) var(--space-6);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+.summaryTitle {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.summaryList {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.summaryLink {
+  display: inline-block;
+  padding-block: var(--space-1);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+.result {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+}
+
+.resultTitle {
+  font-size: var(--fs-xl);
+}
+
+/* ---- 送信ボタン（ButtonLink の primary と同じ見た目を再利用） ---- */
+.actions {
+  display: grid;
+}
+
+@media (min-width: 768px) {
+  .actions {
+    display: block;
+  }
+}
+
+.submit {
+  composes: button primary from "../ui/ButtonLink.module.css";
+  min-width: 14rem;
+}
+
+@media (hover: hover) {
+  .submit:hover {
+    background-color: var(--color-accent-hover);
+  }
+}
+
+/* 送信中は押せないことを見た目でも示す（aria-disabled と対応） */
+.submit[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: progress;
+}
