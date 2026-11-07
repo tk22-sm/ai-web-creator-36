@@ -21,7 +21,8 @@ function formatDate(date: string): string {
 /**
  * Home の Journal / 学習・制作記録（Server Component）。
  *
- * - ナビの「学習・制作記録」（/#journal）の移動先のため、記事が0件でもセクションは表示する（D-019）。
+ * - 記事が0件でもセクションは表示し、note は公開準備中であることを伝える（D-019・D-061）。
+ *   記事が0件の間は、メニューの「学習・制作記録」は表示しない（data/navigation.ts）。
  * - 記事は note への外部リンク。新しいタブで開くことを読み上げ用テキストで伝える。
  * - 独自ブログ・CMS は作らない（仕様書 4章）。
  *
@@ -35,7 +36,11 @@ export default function Journal() {
       id="journal"
       eyebrow="Journal"
       title="学習・制作記録"
-      lead="Web制作の学習や、作品づくりの過程をnoteで発信しています。"
+      lead={
+        visibleArticles.length > 0
+          ? "Web制作の学習や、作品づくりの過程をnoteで発信しています。"
+          : "Web制作の学習や、作品づくりの過程を、noteで発信していく予定です。"
+      }
       action={
         noteProfileUrl && (
           <a
@@ -72,7 +77,7 @@ export default function Journal() {
           ))}
         </ul>
       ) : (
-        <p className={styles.empty}>記事は公開準備中です。公開後、こちらでご紹介します。</p>
+        <p className={styles.empty}>noteの記事は、現在公開準備中です。公開後、こちらでご紹介します。</p>
       )}
     </Section>
   );

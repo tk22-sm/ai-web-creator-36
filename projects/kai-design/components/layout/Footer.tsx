@@ -22,7 +22,7 @@ export default function Footer() {
           <p className={styles.note}>個人で活動するWeb制作のポートフォリオサイトです。</p>
         </div>
 
-        <nav aria-label="フッターナビゲーション">
+        <nav aria-label="フッターメニュー">
           <NavLinks
             items={footerNavItems}
             listClassName={styles.list}

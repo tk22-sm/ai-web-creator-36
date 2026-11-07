@@ -109,7 +109,7 @@ export default function AboutPage() {
         spacing="compact"
       >
         <ButtonLink href="/projects" variant="secondary">
-          自主制作の作品を見る
+          作品一覧を見る
         </ButtonLink>
       </Section>
 

@@ -153,7 +153,7 @@ export default async function ProjectDetailPage({ params }: PageProps<"/projects
           spacing="compact"
           action={
             <ButtonLink href="/projects" variant="text">
-              制作実績一覧へ戻る
+              作品一覧を見る
             </ButtonLink>
           }
         >

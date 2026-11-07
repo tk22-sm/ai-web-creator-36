@@ -44,8 +44,8 @@ export const mellowCoffeeCaseStudy: CaseStudy = {
     basis: PLAN_BASIS,
     items: [
       {
-        title: "来店から逆算したCTA",
-        body: "メインのCTAを「お店へのアクセス」（来店したい人をアクセス情報へ案内）、サブのCTAを「お店について」（初めて知った人をコンセプトへ案内）としました。",
+        title: "来店から逆算したボタンの設計（CTA）",
+        body: "行動を促すボタン（CTA）のうち、メインを「お店へのアクセス」（来店したい人をアクセス情報へ案内）、サブを「お店について」（初めて知った人をコンセプトへ案内）としました。",
       },
       {
         title: "心理の変化に沿ったセクション順",
@@ -74,7 +74,7 @@ export const mellowCoffeeCaseStudy: CaseStudy = {
       },
       {
         title: "JavaScript で3つのUIを実装",
-        body: "スマートフォン用メニューの開閉（開閉状態を aria-expanded で支援技術に伝える）、メニュー詳細のモーダル表示、FAQの開閉を実装しました。",
+        body: "スマートフォン用メニューの開閉（開いているか閉じているかが、画面読み上げソフトにも伝わるようにする。aria-expanded）、メニュー詳細のモーダル表示、FAQの開閉を実装しました。",
       },
       {
         title: "不安に答える掲載情報",
@@ -102,7 +102,7 @@ export const mellowCoffeeCaseStudy: CaseStudy = {
         body: "CONCEPT は共感、FOR FAMILY は安心、ACCESS は来店など、各セクションに目的を持たせる。",
       },
       {
-        title: "ワイヤーは見た目より骨組み",
+        title: "ワイヤーフレーム（画面の設計図）は、見た目より骨組み",
         body: "色・フォント・装飾の前に、情報の順番・配置・導線を決める。",
       },
     ],

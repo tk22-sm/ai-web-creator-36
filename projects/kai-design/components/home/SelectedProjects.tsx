@@ -16,11 +16,11 @@ export default function SelectedProjects() {
     <Section
       id="projects"
       eyebrow="Selected Projects"
-      title="自主制作"
+      title="制作実績"
       lead="架空の企業・店舗を想定して制作した自主制作の作品です。実在の企業・店舗や受託案件ではありません。"
       action={
         <ButtonLink href="/projects" variant="text">
-          自主制作一覧を見る
+          作品一覧を見る
         </ButtonLink>
       }
     >
