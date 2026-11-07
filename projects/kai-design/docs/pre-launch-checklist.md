@@ -12,7 +12,7 @@
 | # | 項目 | 担当 | 状態 |
 |---|---|---|---|
 | A1 | プライバシーポリシーの法務確認（海外事業者への情報移転、委託と第三者提供の区別、Formspree の役割の位置づけ、運営者表記、開示等の請求の受け付け方法、同意文の書き方） | 本人＋専門家 | 未 |
-| A2 | セキュリティヘッダー・CSP の設定と Cloudflare 上での検証（方式は D-056。承認後に実装） | Claude Code＋本人 | 未 |
+| A2 | セキュリティヘッダー・CSP：ローカルでの実装・検証は済み（D-059・D-060）。**Cloudflare 上での検証が未完了**（下記「セキュリティヘッダー・CSP」） | Claude Code＋本人 | 一部済 |
 | A3 | 多要素認証の確認（下記「多要素認証」） | 本人 | 未 |
 | A4 | 個人情報の保管・削除ルールの決定とプライバシーポリシーへの反映（下記「保管・削除」） | 本人 | 未 |
 | A5 | 作品スクリーンショット内の写真の利用権確認（D-020） | 本人 | 未 |
@@ -22,6 +22,24 @@
 | A9 | 個人情報漏洩時の初動対応手順の確認（下記） | 本人 | 未 |
 | A10 | 不審な大量送信への対応手順の確認（下記） | 本人 | 未 |
 | A11 | `npm run check:public` で情報混入なし（ビルド後の `out/` を含む） | Claude Code | 未 |
+
+## セキュリティヘッダー・CSP（A2）
+
+実装済み（ローカルで検証済み。D-059・D-060）：
+- `npm run build` が `next build` の後に `scripts/generate-security-headers.mjs` を実行し、`out/_headers` を作る（全ページ共通の CSP を `/*` に1つ）。生成・照合に失敗するとビルドが失敗する。
+- `npm run check:public` は、`out/_headers` が無い・今のビルド結果と一致しない場合も問題として報告する。
+- フォームは JavaScript が動き出すまで送信ボタンを押せない（`disabled`）。`method="post"` と CSP の `form-action 'none'` も併用し、入力内容が URL に付かない。
+
+Cloudflare 上で確認すること（Kai Design 用の Cloudflare Pages プロジェクトの作成について承認を得たあと）：
+1. Cloudflare のビルド設定：ビルドコマンドが `npm run build`（`next build` だけにしない）、出力フォルダが `out`。ビルドログに「セキュリティヘッダーを生成しました」と出ていること。
+2. ビルド環境の Node.js が 20.11 以上であること（生成スクリプトが `import.meta.dirname` と `fs.readdirSync` の `recursive` を使うため。手元は 22 系で確認）。
+3. `curl -sI` で次を確認する：`/`・`/contact`・`/projects/ki-to-hibi`・存在しない URL・`/contact.html`（拡張子なしへのリダイレクト）・`/_next/static/` の .js と .css・`/favicon.ico`・`/_headers`（配信されず 404 になること）。
+   - 各応答に `Content-Security-Policy` が **1つだけ**（カンマで連結されていない）付いている
+   - 存在しない URL が **404** で返り、CSP が付いている（公式ドキュメントに記載が無いため要確認）
+   - `Referrer-Policy: strict-origin-when-cross-origin`・`X-Content-Type-Options: nosniff`（Cloudflare の既定値）が付いている
+4. プレビュー URL で、ブラウザの開発者ツールに CSP 違反が出ないこと（全ページ・画面遷移・フォームの入力チェック）。フォームの送信は、実送信の承認が出るまで行わない。
+5. Safari・Firefox・実機での表示と CSP 違反の確認。
+6. 結果を decision-log に記録する。
 
 ## 多要素認証（A3）— 本人が操作
 各サービスの設定画面で、次を確認する（認証アプリのコードや予備コードは誰にも共有しない）。

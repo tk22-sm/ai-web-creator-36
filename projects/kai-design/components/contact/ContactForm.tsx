@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ChangeEvent, type FormEvent } from "react";
 import {
   CONTACT_FAILURE_MESSAGES,
   RESUBMIT_COOLDOWN_MESSAGE,
@@ -56,6 +56,25 @@ const FIELD_IDS: Record<ContactFieldName, string> = {
   consent: "contact-consent",
 };
 
+/** 送信の準備中（JavaScript の読み込み前・読み込み失敗・無効）であることを伝える文の id */
+const NOT_READY_HINT_ID = "contact-submit-not-ready";
+
+/** useSyncExternalStore 用：変化を通知しない購読関数（JavaScript が動き出したかどうかだけを知るため） */
+const subscribeNothing = () => () => {};
+
+/**
+ * JavaScript が動き出した（Hydration が終わった）かどうか。
+ * サーバーでの HTML 生成時と Hydration 中は false、その後は true になる（D-060）。
+ * Hydration の前後で描画内容が食い違わないよう、useEffect ではなく useSyncExternalStore で判定する。
+ */
+function useIsHydrated(): boolean {
+  return useSyncExternalStore(
+    subscribeNothing,
+    () => true,
+    () => false,
+  );
+}
+
 type ContactFormProps = {
   /**
    * 送信関数。省略時は getContactSubmitter() の結果を使う
@@ -86,6 +105,7 @@ export default function ContactForm({
   submitter = getContactSubmitter(),
   mode = getContactFormMode(),
 }: ContactFormProps) {
+  const isHydrated = useIsHydrated();
   const [values, setValues] = useState<ContactFormValues>(EMPTY_CONTACT_FORM);
   const [errors, setErrors] = useState<ContactFormErrors>({});
   const [status, setStatus] = useState<FormStatus>({ kind: "idle" });
@@ -109,6 +129,8 @@ export default function ContactForm({
   const [now, setNow] = useState(0);
 
   const isSubmitting = status.kind === "submitting";
+  /** 準備中の案内を出すか（JavaScript が動き出す前で、送信先が設定されているときだけ） */
+  const showNotReadyHint = !isHydrated && submitter !== null;
   const cooldownSeconds = remainingSeconds(resubmitAllowedAt, now);
   const isCoolingDown = cooldownSeconds > 0;
   const errorFields = CONTACT_FIELD_ORDER.filter((field) => errors[field]);
@@ -250,7 +272,9 @@ export default function ContactForm({
   }
 
   return (
-    <form className={styles.form} noValidate onSubmit={handleSubmit} aria-busy={isSubmitting}>
+    // method="post"：万一ブラウザ標準の送信が起きても、入力内容が URL（閲覧履歴・アクセスログ）に付かないようにする。
+    // 標準の送信そのものは、送信ボタンの disabled（下記）と CSP の form-action 'none' で止める（D-060）。
+    <form className={styles.form} method="post" noValidate onSubmit={handleSubmit} aria-busy={isSubmitting}>
       {!submitter && (
         <p className={styles.notice}>
           現在、このフォームからの送信は準備中です。入力内容の確認はできますが、送信はされません。
@@ -446,12 +470,34 @@ export default function ContactForm({
 
       <div className={styles.actions}>
         {/*
-          送信中・待ち時間中は aria-disabled で「押せない」ことを伝える（disabled にするとフォーカスが外れるため使わない）。
-          押された場合も handleSubmit 側で送信しない。待ち時間中は残り秒数をボタンに表示する。
+          準備中の案内（JavaScript が動き出す前だけ表示し、動き出したら消す。D-060）。
+          送信先が未設定のビルドでは、フォーム上部の「送信は準備中です」の案内と重なるため表示しない
+          （送信ボタンの disabled は、送信先の有無に関係なく維持する）。
+          送信ボタンの直前に置き、読み上げの順番でもボタンより先に読まれるようにする。
+          ボタンの aria-describedby でも関連付ける（disabled の間はボタンに Tab で移動できないため、両方で伝える）。
+        */}
+        {showNotReadyHint && (
+          <div id={NOT_READY_HINT_ID} className={styles.preparing}>
+            <p className={styles.preparingTitle}>
+              <span className={styles.preparingDot} aria-hidden="true" />
+              お問い合わせフォームの準備中です
+            </p>
+            <p>ただいま送信の準備をしています。少しお待ちください。</p>
+            <p>準備が完了しない場合は、ページを再読み込みしてください。</p>
+          </div>
+        )}
+        {/*
+          JavaScript が動き出す前（読み込み前・読み込み失敗・無効）は disabled にする。
+          既定の送信ボタンが disabled のフォームは、クリックでも Enter キーでも送信されない（HTML の仕様）。
+          そのため、ブラウザ標準の送信で入力内容がページ移動に使われることはない（D-060）。
+          動き出した後の送信中・待ち時間中は aria-disabled で「押せない」ことを伝える
+          （disabled にするとフォーカスが外れるため使わない）。押された場合も handleSubmit 側で送信しない。
         */}
         <button
           type="submit"
           className={styles.submit}
+          disabled={!isHydrated}
+          aria-describedby={showNotReadyHint ? NOT_READY_HINT_ID : undefined}
           aria-disabled={isSubmitting || isCoolingDown || undefined}
         >
           {isSubmitting
