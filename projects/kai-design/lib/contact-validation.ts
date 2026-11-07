@@ -64,6 +64,16 @@ export const EMPTY_CONTACT_FORM: ContactFormValues = {
 };
 
 /**
+ * 入力に含めてはいけない文字。
+ * - 制御文字（NUL など。お名前・メールアドレスでは改行・タブも含む）
+ * - 文字の表示順を入れ替える制御文字（U+202A〜U+202E、U+2066〜U+2069）：
+ *   通知メールの表示を偽装される（なりすまし）おそれがあるため（D-054）
+ * ご相談内容では改行（LF）とタブだけを許可する。
+ */
+const SINGLE_LINE_FORBIDDEN = /[\u0000-\u001F\u007F\u202A-\u202E\u2066-\u2069]/;
+const MULTI_LINE_FORBIDDEN = /[\u0000-\u0008\u000B-\u001F\u007F\u202A-\u202E\u2066-\u2069]/;
+
+/**
  * 文字数を数える。
  *
  * JavaScript の `str.length` は絵文字などを2文字と数えてしまうため、
@@ -123,6 +133,7 @@ export function validateContactField(
   switch (field) {
     case "name": {
       if (values.name === "") return "お名前を入力してください。";
+      if (SINGLE_LINE_FORBIDDEN.test(values.name)) return "お名前に使用できない文字が含まれています。";
       if (countCharacters(values.name) > CONTACT_LIMITS.nameMax) {
         return `お名前は${CONTACT_LIMITS.nameMax}文字以内で入力してください。`;
       }
@@ -131,6 +142,7 @@ export function validateContactField(
     case "email": {
       if (values.email === "") return "メールアドレスを入力してください。";
       if (
+        SINGLE_LINE_FORBIDDEN.test(values.email) ||
         countCharacters(values.email) > CONTACT_LIMITS.emailMax ||
         !isValidEmail(values.email)
       ) {
@@ -150,6 +162,7 @@ export function validateContactField(
     }
     case "message": {
       if (values.message === "") return "ご相談内容を入力してください。";
+      if (MULTI_LINE_FORBIDDEN.test(values.message)) return "ご相談内容に使用できない文字が含まれています。";
       const length = countCharacters(values.message);
       if (length < CONTACT_LIMITS.messageMin) {
         return `ご相談内容は${CONTACT_LIMITS.messageMin}文字以上で入力してください。`;

@@ -46,15 +46,32 @@ export type ContactSubmitter = (data: ContactSubmission) => Promise<ContactSubmi
 /** 画面の表示を切り替えるための接続状態 */
 export type ContactFormMode = "unconfigured" | FormspreeEnvironment;
 
-/** 失敗理由ごとの日本語メッセージ。どの場合も入力内容は画面に残る */
+/**
+ * 失敗理由ごとの日本語メッセージ。どの場合も入力内容は画面に残る。
+ *
+ * timeout と network は「送信先に届いたかどうか分からない」失敗（D-052）。
+ * 実際には届いている可能性があるため、すぐの再送を促さず、重複の可能性を伝える。
+ */
 export const CONTACT_FAILURE_MESSAGES: Record<ContactSubmitFailureReason, string> = {
   "rate-limited":
     "送信が集中しているため、受け付けられませんでした。しばらく時間をおいてから、もう一度お試しください。",
   rejected: "送信内容を受け付けられませんでした。入力内容をご確認のうえ、もう一度お試しください。",
-  network: "通信できませんでした。インターネット接続をご確認のうえ、もう一度お試しください。",
-  timeout: "応答がありませんでした。時間をおいて、もう一度お試しください。",
+  network:
+    "通信が途中で途切れたため、送信できたかを確認できませんでした。お問い合わせが届いている可能性があるため、続けて送信せず、インターネット接続を確認してから時間をおいてお試しください。",
+  timeout:
+    "応答を確認できませんでした。お問い合わせが届いている可能性があるため、続けて送信せず、時間をおいてからお試しください。",
   server: "送信できませんでした。時間をおいて、もう一度お試しください。",
 };
+
+/** 送信先に届いたかどうか分からない失敗の理由（重複送信を防ぐため、再送までの待ち時間を設ける） */
+export const UNCERTAIN_FAILURE_REASONS: readonly ContactSubmitFailureReason[] = ["timeout", "network"];
+
+/** 届いたか分からない失敗のあと、再送を受け付けるまでの待ち時間（ミリ秒） */
+export const RESUBMIT_COOLDOWN_MS = 30_000;
+
+/** 待ち時間中に送信ボタンが押されたときのメッセージ */
+export const RESUBMIT_COOLDOWN_MESSAGE =
+  "直前のお問い合わせが届いている可能性があるため、重複を避けて30秒ほど待ってから、もう一度お試しください。";
 
 /**
  * 環境変数から Formspree の設定を読む。

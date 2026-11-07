@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, it } from "node:test";
 import {
   buildFormspreePayload,
+  checkFormspreeBuildEnv,
   classifyFormspreeStatus,
   createFormspreeSubmitter,
   FORMSPREE_ENDPOINT_BASE,
@@ -182,5 +183,118 @@ describe("createFormspreeSubmitter（送信処理・fetch はモック）", () =
     const result = await createFormspreeSubmitter("abcd1234")(submission);
     assert.deepEqual(result, { ok: true });
     assert.equal(fetchImpl.calls.length, 1);
+  });
+});
+
+describe("checkFormspreeBuildEnv（本番ビルド前の設定確認・D-053）", () => {
+  it("環境変数の組み合わせごとに、ビルドを止めるかどうかを判定する", () => {
+    const table = [
+      // [フォームID, 接続先, ビルドを止めるか]
+      [undefined, undefined, false], // 未設定（準備中のまま）は許可
+      ["", "", false],
+      ["abcd1234", "test", false],
+      ["abcd1234", "", false],
+      ["abcd1234", "production", false],
+      ["", "test", false],
+      ["", "production", true], // 本番なのにIDが無い
+      ["abcd1234", "prod", true], // 接続先の入力ミス
+      ["abcd1234", "PRODUCTION", true],
+      ["abcd1234", "staging", true],
+      ["abc/def", "test", true], // IDの形式が不正
+      ["ab", "", true],
+    ];
+    for (const [id, env, shouldFail] of table) {
+      const problem = checkFormspreeBuildEnv(id, env);
+      assert.equal(problem !== null, shouldFail, `ID=${id} ENV=${env}`);
+    }
+  });
+
+  it("エラー文に環境変数の値を含めない", () => {
+    for (const [id, env] of [["abc/def", "test"], ["abcd1234", "prod-typo"], ["", "production"]]) {
+      const problem = checkFormspreeBuildEnv(id, env) ?? "";
+      assert.ok(problem.length > 0);
+      assert.ok(!problem.includes("abc/def") && !problem.includes("prod-typo"), problem);
+    }
+  });
+});
+
+describe("不正なフォームID（追加・B4）", () => {
+  it("全角英数字・URLエンコード・改行・NUL・空白入りは未設定として扱う", () => {
+    for (const bad of ["ａｂｃｄ１２３４", "%2Fabcd", "abcd%20", "abcd\n1234", "abcd\u00001234", "abcd 1234", "abcd.1234", "abcd-1234"]) {
+      assert.equal(resolveFormspreeConfig(bad, "test"), null, JSON.stringify(bad));
+    }
+  });
+
+  it("送信先は常に固定の URL＋英数字のIDだけになる", async () => {
+    for (const id of ["abcd", "A1b2C3d4", "z".repeat(32)]) {
+      const fetchImpl = mockFetch(200);
+      await createFormspreeSubmitter(id, { fetchImpl })(submission);
+      const url = new URL(fetchImpl.calls[0].url);
+      assert.equal(url.origin, "https://formspree.io");
+      assert.equal(url.pathname, `/f/${id}`);
+      assert.equal(url.search, "");
+      assert.equal(url.hash, "");
+    }
+  });
+});
+
+describe("不正・極端な入力データ（追加・B4）", () => {
+  it("非常に長い値・制御文字・HTML を含んでも例外にならず、JSON として正しく送られる", async () => {
+    const weird = {
+      name: "<script>alert(1)</script>",
+      email: "test@example.com",
+      category: "",
+      message: "あ".repeat(100_000) + "\u0000\u202E\"'`${}",
+      honeypot: "",
+    };
+    const fetchImpl = mockFetch(200);
+    const result = await createFormspreeSubmitter("abcd1234", { fetchImpl })(weird);
+    assert.deepEqual(result, { ok: true });
+    const body = JSON.parse(fetchImpl.calls[0].init.body);
+    assert.equal(body.message, weird.message);
+    assert.equal(body.name, weird.name);
+  });
+
+  it("ハニーポットに値が入っていれば、そのまま _gotcha として送る（判定は Formspree 側）", async () => {
+    const fetchImpl = mockFetch(200);
+    await createFormspreeSubmitter("abcd1234", { fetchImpl })({ ...submission, honeypot: "bot-filled" });
+    assert.equal(JSON.parse(fetchImpl.calls[0].init.body)._gotcha, "bot-filled");
+  });
+});
+
+describe("想定外の応答・個人情報を含むエラー応答（追加・B4）", () => {
+  it("エラー本文に入力値（個人情報）が含まれていても、結果には理由しか入らない", async () => {
+    const fetchImpl = async () =>
+      new Response(JSON.stringify({ errors: [{ message: `invalid: ${submission.email} ${submission.name}` }] }), {
+        status: 422,
+      });
+    const result = await createFormspreeSubmitter("abcd1234", { fetchImpl })(submission);
+    assert.deepEqual(result, { ok: false, reason: "rejected" });
+    assert.ok(!JSON.stringify(result).includes(submission.email));
+    assert.deepEqual(consoleCalls, []);
+  });
+
+  it("本文が空・JSON でない 200 は、ステータスで成功と判定する", async () => {
+    const fetchImpl = async () => new Response("not json", { status: 200 });
+    assert.deepEqual(await createFormspreeSubmitter("abcd1234", { fetchImpl })(submission), { ok: true });
+  });
+
+  it("3xx などの想定外ステータスは server、Response 以外が返ったら network", async () => {
+    const r302 = await createFormspreeSubmitter("abcd1234", {
+      fetchImpl: async () => new Response(null, { status: 302, headers: { Location: "/x" } }),
+    })(submission);
+    assert.deepEqual(r302, { ok: false, reason: "server" });
+    const rUndef = await createFormspreeSubmitter("abcd1234", { fetchImpl: async () => undefined })(submission);
+    assert.deepEqual(rUndef, { ok: false, reason: "network" });
+  });
+
+  it("中止に反応しない fetch でも時間切れで timeout になり、後から届いた成功は無視される", async () => {
+    let resolveLate;
+    const fetchImpl = () => new Promise((resolve) => (resolveLate = resolve)); // signal を無視する
+    const result = await createFormspreeSubmitter("abcd1234", { fetchImpl, timeoutMs: 50 })(submission);
+    assert.deepEqual(result, { ok: false, reason: "timeout" });
+    resolveLate(new Response("{}", { status: 200 })); // 遅れて成功が届いても結果は変わらない
+    await new Promise((r) => setTimeout(r, 10));
+    assert.deepEqual(result, { ok: false, reason: "timeout" });
   });
 });

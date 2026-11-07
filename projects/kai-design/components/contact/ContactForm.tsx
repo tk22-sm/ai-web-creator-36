@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import {
   CONTACT_FAILURE_MESSAGES,
+  RESUBMIT_COOLDOWN_MESSAGE,
+  RESUBMIT_COOLDOWN_MS,
+  UNCERTAIN_FAILURE_REASONS,
   getContactFormMode,
   getContactSubmitter,
   type ContactFormMode,
@@ -31,8 +34,9 @@ import styles from "./ContactForm.module.css";
  * フォームの状態。
  * - idle：入力中
  * - submitting：送信中（ボタンを押せない）
- * - unavailable：入力は正しいが、送信先が未設定のため送れなかった（STEP 4-B① の状態）
+ * - unavailable：入力は正しいが、送信先が未設定のため送れなかった
  * - error：送信に失敗した（入力内容は残す）
+ * - cooldown：届いたか分からない失敗の直後で、重複を防ぐため再送を待ってもらっている（D-052）
  * - success：送信関数が成功を返した（このときだけ「受け付けました」と表示する）
  */
 type FormStatus =
@@ -40,6 +44,7 @@ type FormStatus =
   | { kind: "submitting" }
   | { kind: "unavailable" }
   | { kind: "error"; reason: ContactSubmitFailureReason }
+  | { kind: "cooldown" }
   | { kind: "success" };
 
 /** 入力欄の id。エラーサマリーのリンク先にもなる */
@@ -94,6 +99,8 @@ export default function ContactForm({
   const resultRef = useRef<HTMLHeadingElement>(null);
   /** 隠し入力欄（ハニーポット）。値は state に持たず、送信時に直接読む（人は入力しないため） */
   const honeypotRef = useRef<HTMLInputElement>(null);
+  /** 届いたか分からない失敗のあと、再送を受け付ける時刻（ミリ秒）。0 なら制限なし */
+  const resubmitAllowedAtRef = useRef(0);
 
   const isSubmitting = status.kind === "submitting";
   const errorFields = CONTACT_FIELD_ORDER.filter((field) => errors[field]);
@@ -119,7 +126,9 @@ export default function ContactForm({
       target instanceof HTMLInputElement && target.type === "checkbox" ? target.checked : target.value;
     setValues((current) => ({ ...current, [field]: nextValue }));
     // 失敗・準備中のメッセージは、入力し直したら消す
-    if (status.kind === "error" || status.kind === "unavailable") setStatus({ kind: "idle" });
+    if (status.kind === "error" || status.kind === "unavailable" || status.kind === "cooldown") {
+      setStatus({ kind: "idle" });
+    }
   };
 
   /**
@@ -168,15 +177,25 @@ export default function ContactForm({
       return;
     }
 
+    // 届いたか分からない失敗の直後は、重複送信を防ぐため一定時間は送らない（D-052）
+    if (Date.now() < resubmitAllowedAtRef.current) {
+      setStatus({ kind: "cooldown" });
+      return;
+    }
+
     submittingRef.current = true;
     setStatus({ kind: "submitting" });
     try {
       const { name, email, category, message } = normalizeContactForm(values);
       const honeypot = honeypotRef.current?.value ?? "";
       const result = await submitter({ name, email, category, message, honeypot });
+      if (!result.ok && UNCERTAIN_FAILURE_REASONS.includes(result.reason)) {
+        resubmitAllowedAtRef.current = Date.now() + RESUBMIT_COOLDOWN_MS;
+      }
       setStatus(result.ok ? { kind: "success" } : { kind: "error", reason: result.reason });
     } catch {
-      // 送信関数の中で想定外の例外が起きた場合も、通信できなかったものとして扱う
+      // 送信関数の中で想定外の例外が起きた場合も、通信できなかった（届いたか分からない）ものとして扱う
+      resubmitAllowedAtRef.current = Date.now() + RESUBMIT_COOLDOWN_MS;
       setStatus({ kind: "error", reason: "network" });
     } finally {
       submittingRef.current = false;
@@ -386,6 +405,11 @@ export default function ContactForm({
       {status.kind === "error" && (
         <p className={styles.errorMessage} role="alert">
           {CONTACT_FAILURE_MESSAGES[status.reason]}
+        </p>
+      )}
+      {status.kind === "cooldown" && (
+        <p className={styles.statusMessage} role="status">
+          {RESUBMIT_COOLDOWN_MESSAGE}
         </p>
       )}
 

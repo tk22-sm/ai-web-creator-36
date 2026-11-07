@@ -63,6 +63,34 @@ export function resolveFormspreeConfig(
 }
 
 /**
+ * 本番ビルドの前に、Formspree の環境変数の組み合わせを確認する（D-053）。
+ *
+ * next.config.ts から `next build` のときだけ呼ばれ、問題があればビルドを失敗させる。
+ * 設定ミスのまま公開する事故（本番なのに「準備中」のまま、テストと本番の取り違えなど）を防ぐため。
+ *
+ * @param formId NEXT_PUBLIC_FORMSPREE_FORM_ID の値
+ * @param environment NEXT_PUBLIC_FORMSPREE_ENV の値
+ * @returns 問題があれば日本語の説明（環境変数の値そのものは含めない）、問題が無ければ null
+ */
+export function checkFormspreeBuildEnv(
+  formId: string | undefined,
+  environment: string | undefined,
+): string | null {
+  const env = (environment ?? "").trim();
+  const id = (formId ?? "").trim();
+  if (env !== "" && env !== "test" && env !== "production") {
+    return "NEXT_PUBLIC_FORMSPREE_ENV には test か production を指定してください（入力ミスの可能性があります）。";
+  }
+  if (id !== "" && !FORM_ID_PATTERN.test(id)) {
+    return "NEXT_PUBLIC_FORMSPREE_FORM_ID の形式が正しくありません（英数字4〜32文字）。";
+  }
+  if (env === "production" && id === "") {
+    return "本番用（NEXT_PUBLIC_FORMSPREE_ENV=production）の設定ですが、NEXT_PUBLIC_FORMSPREE_FORM_ID が設定されていません。";
+  }
+  return null;
+}
+
+/**
  * Formspree に送るデータを作る。
  *
  * @param data 前後の空白を除いた入力値と、隠し入力欄の値
@@ -112,6 +140,10 @@ type FormspreeSubmitterOptions = {
  * 1. JSON で POST する（Accept: application/json）
  * 2. 2xx なら成功。それ以外はステータスコードで理由を分ける（429 / 4xx / 5xx）
  * 3. 時間内に応答が無ければ中止して timeout、通信自体ができなければ network
+ *
+ * 時間切れの判定は fetch の中止（AbortController）だけに頼らず、タイマーとの「早い者勝ち」
+ * （Promise.race）でも行う。中止に反応しない環境でも必ず timeout として終わり、
+ * その後に遅れて届いた応答は無視される（画面が後から「成功」に変わらない）。
  */
 export function createFormspreeSubmitter(
   formId: string,
@@ -124,10 +156,16 @@ export function createFormspreeSubmitter(
     const fetchImpl = options.fetchImpl ?? globalThis.fetch;
     // AbortController：一定時間で fetch を中止するための仕組み
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<"timeout">((resolve) => {
+      timer = setTimeout(() => {
+        controller.abort();
+        resolve("timeout");
+      }, timeoutMs);
+    });
 
     try {
-      const response = await fetchImpl(endpoint, {
+      const request = fetchImpl(endpoint, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -136,11 +174,15 @@ export function createFormspreeSubmitter(
         body: JSON.stringify(buildFormspreePayload(data)),
         signal: controller.signal,
       });
+      // 中止された fetch が後から失敗しても、未処理のエラーとして扱われないようにする
+      request.catch(() => {});
+      const response = await Promise.race([request, timeout]);
+      if (response === "timeout") return { ok: false, reason: "timeout" };
       // 成功の判定は HTTP ステータスだけで行う。レスポンス本文（エラー内容など）は読まず、ログにも出さない
       if (response.ok) return { ok: true };
       return { ok: false, reason: classifyFormspreeStatus(response.status) };
     } catch {
-      // 中止（タイムアウト）か、それ以外の通信エラーかを区別する
+      // 中止（タイムアウト）か、それ以外の通信エラー（想定外の応答を含む）かを区別する
       return { ok: false, reason: controller.signal.aborted ? "timeout" : "network" };
     } finally {
       clearTimeout(timer);
