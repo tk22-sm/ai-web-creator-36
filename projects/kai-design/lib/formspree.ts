@@ -111,13 +111,31 @@ export function buildFormspreePayload(data: ContactSubmission): Record<string, s
 }
 
 /**
+ * Retry-After ヘッダーの値を、待ち時間（ミリ秒）に変換する。
+ *
+ * @param value ヘッダーの値（無ければ null）
+ * @returns 0〜999999 の整数秒だけを受け付け、ミリ秒にして返す。それ以外は null（= 既定値を使う）
+ *
+ * Retry-After には「秒数」と「日時」の2つの書き方があるが、日時は利用者の端末の時計のずれに
+ * 影響されるため使わない。小数・負の数・7桁以上・空白を含む値なども信用せず null にする。
+ */
+export function parseRetryAfterMs(value: string | null | undefined): number | null {
+  if (value == null) return null;
+  const trimmed = value.trim();
+  if (!/^\d{1,6}$/.test(trimmed)) return null;
+  return Number(trimmed) * 1000;
+}
+
+/**
  * HTTP ステータスコードから、失敗の理由を決める。
  *
  * @param status 2xx 以外のステータスコード
- * @returns 429 は送信回数の上限、その他の 4xx は受け付け拒否、5xx などはサーバーエラー
+ * @returns 429 は送信回数の上限、404・410 はフォームが見つからない（公式：存在しない・削除されたフォームは 404）、
+ *   その他の 4xx は受け付け拒否、5xx などはサーバーエラー
  */
 export function classifyFormspreeStatus(status: number): ContactSubmitFailureReason {
   if (status === 429) return "rate-limited";
+  if (status === 404 || status === 410) return "form-unavailable";
   if (status >= 400 && status < 500) return "rejected";
   return "server";
 }
@@ -180,7 +198,15 @@ export function createFormspreeSubmitter(
       if (response === "timeout") return { ok: false, reason: "timeout" };
       // 成功の判定は HTTP ステータスだけで行う。レスポンス本文（エラー内容など）は読まず、ログにも出さない
       if (response.ok) return { ok: true };
-      return { ok: false, reason: classifyFormspreeStatus(response.status) };
+      const reason = classifyFormspreeStatus(response.status);
+      if (reason === "rate-limited") {
+        // Retry-After（再送までの秒数）が読めた場合だけ添える。値の妥当性は parseRetryAfterMs で確認し、
+        // 上下限は画面側（lib/contact-cooldown.ts）で収める。ブラウザでは、送信先がこのヘッダーの読み取りを
+        // 許可（Access-Control-Expose-Headers）していない場合は読めず、既定の待ち時間になる。
+        const retryAfterMs = parseRetryAfterMs(response.headers.get("Retry-After"));
+        return retryAfterMs === null ? { ok: false, reason } : { ok: false, reason, retryAfterMs };
+      }
+      return { ok: false, reason };
     } catch {
       // 中止（タイムアウト）か、それ以外の通信エラー（想定外の応答を含む）かを区別する
       return { ok: false, reason: controller.signal.aborted ? "timeout" : "network" };

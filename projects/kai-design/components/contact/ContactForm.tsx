@@ -5,14 +5,14 @@ import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "r
 import {
   CONTACT_FAILURE_MESSAGES,
   RESUBMIT_COOLDOWN_MESSAGE,
-  RESUBMIT_COOLDOWN_MS,
-  UNCERTAIN_FAILURE_REASONS,
   getContactFormMode,
   getContactSubmitter,
   type ContactFormMode,
   type ContactSubmitFailureReason,
+  type ContactSubmitResult,
   type ContactSubmitter,
 } from "@/lib/contact-submit";
+import { getResubmitCooldownMs, nextResubmitAllowedAt, remainingSeconds } from "@/lib/contact-cooldown";
 import {
   CONTACT_CATEGORIES,
   CONTACT_FIELD_ORDER,
@@ -36,7 +36,7 @@ import styles from "./ContactForm.module.css";
  * - submitting：送信中（ボタンを押せない）
  * - unavailable：入力は正しいが、送信先が未設定のため送れなかった
  * - error：送信に失敗した（入力内容は残す）
- * - cooldown：届いたか分からない失敗の直後で、重複を防ぐため再送を待ってもらっている（D-052）
+ * - cooldown：待ち時間中に送信しようとした（届いたか分からない失敗・送信回数の上限のあと。D-052・D-057）
  * - success：送信関数が成功を返した（このときだけ「受け付けました」と表示する）
  */
 type FormStatus =
@@ -99,12 +99,45 @@ export default function ContactForm({
   const resultRef = useRef<HTMLHeadingElement>(null);
   /** 隠し入力欄（ハニーポット）。値は state に持たず、送信時に直接読む（人は入力しないため） */
   const honeypotRef = useRef<HTMLInputElement>(null);
-  /** 届いたか分からない失敗のあと、再送を受け付ける時刻（ミリ秒）。0 なら制限なし */
+  /**
+   * 再送を受け付ける時刻（ミリ秒。0 なら制限なし）。送信の可否の判定はすぐに値が変わる ref で行い、
+   * 残り秒数の表示には state を使う（D-057）。
+   */
   const resubmitAllowedAtRef = useRef(0);
+  const [resubmitAllowedAt, setResubmitAllowedAt] = useState(0);
+  /** 残り秒数の表示用の現在時刻。待ち時間中だけ1秒ごとに更新する（描画中に Date.now() を呼ばないため） */
+  const [now, setNow] = useState(0);
 
   const isSubmitting = status.kind === "submitting";
+  const cooldownSeconds = remainingSeconds(resubmitAllowedAt, now);
+  const isCoolingDown = cooldownSeconds > 0;
   const errorFields = CONTACT_FIELD_ORDER.filter((field) => errors[field]);
   const messageLength = countCharacters(normalizeContactForm(values).message);
+
+  // 待ち時間中だけ、残り秒数の表示を1秒ごとに更新する。待ち時間が終わったら止める
+  useEffect(() => {
+    if (resubmitAllowedAt === 0) return;
+    const timer = setInterval(() => {
+      const current = Date.now();
+      setNow(current);
+      if (current >= resubmitAllowedAt) clearInterval(timer);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resubmitAllowedAt]);
+
+  /**
+   * 送信結果に応じて、再送までの待ち時間を設定する（lib/contact-cooldown.ts で長さを決める）。
+   * すでに設定されている待ち時間より短くはしない。
+   */
+  const applyResubmitCooldown = (result: ContactSubmitResult) => {
+    const cooldownMs = getResubmitCooldownMs(result);
+    if (cooldownMs === 0) return;
+    const current = Date.now();
+    const allowedAt = nextResubmitAllowedAt(resubmitAllowedAtRef.current, current, cooldownMs);
+    resubmitAllowedAtRef.current = allowedAt;
+    setResubmitAllowedAt(allowedAt);
+    setNow(current);
+  };
 
   // エラーサマリーが表示されたら、そこへフォーカスを移して読み上げさせる
   useEffect(() => {
@@ -177,7 +210,7 @@ export default function ContactForm({
       return;
     }
 
-    // 届いたか分からない失敗の直後は、重複送信を防ぐため一定時間は送らない（D-052）
+    // 届いたか分からない失敗・送信回数の上限の直後は、一定時間は送らない（D-052・D-057）
     if (Date.now() < resubmitAllowedAtRef.current) {
       setStatus({ kind: "cooldown" });
       return;
@@ -189,13 +222,11 @@ export default function ContactForm({
       const { name, email, category, message } = normalizeContactForm(values);
       const honeypot = honeypotRef.current?.value ?? "";
       const result = await submitter({ name, email, category, message, honeypot });
-      if (!result.ok && UNCERTAIN_FAILURE_REASONS.includes(result.reason)) {
-        resubmitAllowedAtRef.current = Date.now() + RESUBMIT_COOLDOWN_MS;
-      }
+      applyResubmitCooldown(result);
       setStatus(result.ok ? { kind: "success" } : { kind: "error", reason: result.reason });
     } catch {
       // 送信関数の中で想定外の例外が起きた場合も、通信できなかった（届いたか分からない）ものとして扱う
-      resubmitAllowedAtRef.current = Date.now() + RESUBMIT_COOLDOWN_MS;
+      applyResubmitCooldown({ ok: false, reason: "network" });
       setStatus({ kind: "error", reason: "network" });
     } finally {
       submittingRef.current = false;
@@ -414,12 +445,20 @@ export default function ContactForm({
       )}
 
       <div className={styles.actions}>
+        {/*
+          送信中・待ち時間中は aria-disabled で「押せない」ことを伝える（disabled にするとフォーカスが外れるため使わない）。
+          押された場合も handleSubmit 側で送信しない。待ち時間中は残り秒数をボタンに表示する。
+        */}
         <button
           type="submit"
           className={styles.submit}
-          aria-disabled={isSubmitting || undefined}
+          aria-disabled={isSubmitting || isCoolingDown || undefined}
         >
-          {isSubmitting ? "送信中…" : "入力内容を送信する"}
+          {isSubmitting
+            ? "送信中…"
+            : isCoolingDown
+              ? `あと${cooldownSeconds}秒で送信できます`
+              : "入力内容を送信する"}
         </button>
       </div>
     </form>

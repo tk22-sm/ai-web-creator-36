@@ -11,6 +11,7 @@ import {
   buildFormspreePayload,
   checkFormspreeBuildEnv,
   classifyFormspreeStatus,
+  parseRetryAfterMs,
   createFormspreeSubmitter,
   FORMSPREE_ENDPOINT_BASE,
   resolveFormspreeConfig,
@@ -104,7 +105,8 @@ describe("buildFormspreePayload（送信データ）", () => {
 describe("classifyFormspreeStatus（失敗理由の判定）", () => {
   it("429 は回数制限、その他の 4xx は受付拒否、5xx はサーバーエラー", () => {
     assert.equal(classifyFormspreeStatus(429), "rate-limited");
-    for (const s of [400, 403, 404, 422]) assert.equal(classifyFormspreeStatus(s), "rejected", String(s));
+    for (const s of [400, 403, 422]) assert.equal(classifyFormspreeStatus(s), "rejected", String(s));
+    for (const s of [404, 410]) assert.equal(classifyFormspreeStatus(s), "form-unavailable", String(s));
     for (const s of [500, 502, 503]) assert.equal(classifyFormspreeStatus(s), "server", String(s));
   });
 });
@@ -132,8 +134,8 @@ describe("createFormspreeSubmitter（送信処理・fetch はモック）", () =
     });
   });
 
-  it("4xx（422・404）は rejected、5xx は server", async () => {
-    for (const [status, reason] of [[422, "rejected"], [404, "rejected"], [500, "server"], [503, "server"]]) {
+  it("422 は rejected、404 は form-unavailable、5xx は server", async () => {
+    for (const [status, reason] of [[422, "rejected"], [404, "form-unavailable"], [500, "server"], [503, "server"]]) {
       const result = await createFormspreeSubmitter("abcd1234", { fetchImpl: mockFetch(status) })(submission);
       assert.deepEqual(result, { ok: false, reason }, String(status));
     }
@@ -296,5 +298,41 @@ describe("想定外の応答・個人情報を含むエラー応答（追加・B
     resolveLate(new Response("{}", { status: 200 })); // 遅れて成功が届いても結果は変わらない
     await new Promise((r) => setTimeout(r, 10));
     assert.deepEqual(result, { ok: false, reason: "timeout" });
+  });
+});
+
+describe("parseRetryAfterMs（Retry-After の安全な解釈・D-057）", () => {
+  it("0〜999999 の整数秒だけを受け付ける", () => {
+    assert.equal(parseRetryAfterMs("60"), 60_000);
+    assert.equal(parseRetryAfterMs(" 120 "), 120_000);
+    assert.equal(parseRetryAfterMs("0"), 0);
+    assert.equal(parseRetryAfterMs("999999"), 999_999_000);
+  });
+
+  it("不正値・日時・極端に長い値・無い場合は null（既定の待ち時間を使う）", () => {
+    for (const bad of [null, undefined, "", "abc", "-5", "1.5", "1e3", "60s", "6 0", "9999999", "1".repeat(1000), "Wed, 21 Oct 2026 07:28:00 GMT", "0x3C"]) {
+      assert.equal(parseRetryAfterMs(bad), null, JSON.stringify(bad));
+    }
+  });
+});
+
+describe("429 応答と Retry-After（モック・D-057）", () => {
+  const respond429 = (headers) => async () => new Response("{}", { status: 429, headers });
+
+  it("整数秒の Retry-After があれば retryAfterMs として返す", async () => {
+    const result = await createFormspreeSubmitter("abcd1234", { fetchImpl: respond429({ "Retry-After": "90" }) })(submission);
+    assert.deepEqual(result, { ok: false, reason: "rate-limited", retryAfterMs: 90_000 });
+  });
+
+  it("Retry-After が無い・不正なら retryAfterMs を付けない", async () => {
+    for (const headers of [{}, { "Retry-After": "soon" }, { "Retry-After": "99999999" }]) {
+      const result = await createFormspreeSubmitter("abcd1234", { fetchImpl: respond429(headers) })(submission);
+      assert.deepEqual(result, { ok: false, reason: "rate-limited" }, JSON.stringify(headers));
+    }
+  });
+
+  it("429 以外では Retry-After を読まない", async () => {
+    const fetchImpl = async () => new Response("{}", { status: 503, headers: { "Retry-After": "120" } });
+    assert.deepEqual(await createFormspreeSubmitter("abcd1234", { fetchImpl })(submission), { ok: false, reason: "server" });
   });
 });
