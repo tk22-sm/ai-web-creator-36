@@ -67,10 +67,10 @@ describe("validateContactForm", () => {
   });
 
   it("メールアドレスの形式を確認する", () => {
-    for (const ok of ["a@b.co", "name.tag+x@example.co.jp", "  test@example.com  "]) {
+    for (const ok of ["a@example.co", "name.tag+x@example.co.jp", "  test@example.com  "]) {
       assert.equal(validateContactForm({ ...valid, email: ok }).email, undefined, ok);
     }
-    for (const ng of ["test", "test@", "@example.com", "test@example", "te st@example.com", "a@b@c.com"]) {
+    for (const ng of ["test", "test@", "@example.com", "test@example", "te st@example.com", "a@b@example.com"]) {
       assert.match(validateContactForm({ ...valid, email: ng }).email ?? "", /形式が正しくありません/, ng);
     }
     const tooLong = `${"a".repeat(CONTACT_LIMITS.emailMax)}@example.com`;
@@ -101,5 +101,31 @@ describe("normalizeContactForm", () => {
     assert.equal(result.name, "山田");
     assert.equal(result.message, "1行目\n2行目");
     assert.equal(input.name, "  山田  ");
+  });
+});
+
+describe("入力形式の防御（制御文字・表示順の制御文字・D-054）", () => {
+  it("お名前・メールアドレスは改行・タブ・NUL・表示順の制御文字を受け付けない", () => {
+    for (const bad of ["山田\n太郎", "山田\t太郎", "山田\u0000", "山田\u202E太郎", "\u2066山田"]) {
+      assert.match(validateContactForm({ ...valid, name: bad }).name ?? "", /使用できない文字/, JSON.stringify(bad));
+    }
+    assert.match(validateContactForm({ ...valid, email: "test\n@example.com" }).email ?? "", /形式/);
+    assert.match(validateContactForm({ ...valid, email: "te\u202Est@example.com" }).email ?? "", /形式/);
+  });
+
+  it("ご相談内容は改行・タブを許可し、それ以外の制御文字は受け付けない", () => {
+    assert.equal(validateContactForm({ ...valid, message: "1行目\n2行目\tタブあり" }).message, undefined);
+    assert.equal(validateContactForm({ ...valid, message: "1行目\r\n2行目の相談です" }).message, undefined);
+    for (const bad of ["相談内容です\u0000です", "相談内容です\u0007です", "相談内容です\u202Eです"]) {
+      assert.match(validateContactForm({ ...valid, message: bad }).message ?? "", /使用できない文字/, JSON.stringify(bad));
+    }
+  });
+
+  it("極端に長い入力でも、エラー文を返すだけで処理が止まらない", () => {
+    const started = Date.now();
+    const errors = validateContactForm({ ...valid, name: "あ".repeat(100_000), message: "い".repeat(1_000_000) });
+    assert.match(errors.name ?? "", /50文字以内/);
+    assert.match(errors.message ?? "", /2000文字以内/);
+    assert.ok(Date.now() - started < 2000);
   });
 });
