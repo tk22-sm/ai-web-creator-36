@@ -13,14 +13,17 @@ export const metadata: Metadata = {
 /**
  * 個人情報の取り扱い（/privacy、Server Component）。
  *
- * ■ これは草案（STEP 4-B①。D-045）
- * - 法的な最終確認と、Formspree・Cloudflare の実際の設定確認が終わるまでは草案として扱い、
- *   画面上部にも草案であることを表示する。確定時に注記を外し、制定日を記載する。
+ * ■ これは草案（D-045・D-062）
+ * - 法務確認（公開前チェックリスト A1）が終わるまでは草案として扱い、画面上部にも草案であることを表示する。
+ *   確定時に注記を外し、制定日を記載する。
  * - 運営者は「Kai Design（個人）」。氏名・住所・個人のメールアドレスは掲載しない（D-040）。
- * - 未確認の事実（Formspree の保存期間・保存場所、Cloudflare の Cookie・アクセス解析など）は断定しない。
- *   外部サービスの詳細は、各サービスのプライバシーポリシーへの案内にとどめる。
- * - STEP 4-B② で、通知メールと Formspree が自動取得する通信情報について、確認できた範囲で補足した（D-054）。
- *   通信情報の記述は「Formspree のプライバシーポリシーにそう説明されている」という書き方にとどめる。
+ * - 内容は、実装（送信する項目・Cookie やアクセス解析を使っていないこと）と、D-062 で決めた運用ルール
+ *   （通知・返信メールは最後のやり取りから3か月以内に削除など）に合わせる。
+ * - 未確認の事実は断定しない。特に、Formspree 側の保存期間・バックアップ・ログの削除は保証しない。
+ *   契約しているプランに依存する説明（無料プランの保存期間など）は、本文には書かない。
+ * - SNS の DM は公式アカウントの開設前のため、窓口として書かない。
+ * - 国外の事業者への提供（移転）の正式な説明、第三者提供と委託の区別、同意の方法、運営者情報の範囲は
+ *   法務確認で決める。現在の同意欄で足りるとは書かない（第5章で「確認中」と明示する）。
  *
  * フッターのリンク名（data/navigation.ts の「個人情報の取り扱い」）と見出しを一致させている。
  */
@@ -42,7 +45,7 @@ export default function PrivacyPage() {
       <PageHeader
         eyebrow="Privacy"
         title="個人情報の取り扱い"
-        lead="Kai Design（個人。以下「当サイト」）は、お問い合わせフォームを通じてお預かりする個人情報を、次のとおり取り扱います。"
+        lead="Kai Design（以下「当サイト」）は、個人で運営しているWebサイトです。当サイトの運営者は、お問い合わせフォームを通じてお預かりする個人情報を、次のとおり取り扱います。"
       >
         <p className={styles.draftNotice}>
           このページは公開前の草案です。内容は確認中のため、今後変更する場合があります。
@@ -62,8 +65,19 @@ export default function PrivacyPage() {
             <li>ご相談内容</li>
           </ul>
           <p>
-            フォームの送信時には、送信の受け付けに利用する外部サービス（Formspree）が、通信に関する情報を自動的に取得する場合があります。Formspree
-            のプライバシーポリシーでは、IPアドレス、ブラウザの種類、アクセス日時などを自動的に取得し、不正防止やセキュリティの確保などに利用する旨が説明されています。詳しくは、同社のプライバシーポリシーをご確認ください。
+            「個人情報の取り扱いに同意します」の確認欄は、送信前の確認のためのものです。確認欄の状態は送信しません。
+          </p>
+          <p>
+            このほか、当サイトの閲覧時やフォームの送信時には、次の外部サービスが、IPアドレス・ブラウザの種類・アクセス日時などの通信に関する情報を自動的に処理する場合があります。
+          </p>
+          <ul className={styles.list}>
+            <li>当サイトの閲覧時：サイトの配信に利用している Cloudflare</li>
+            <li>
+              フォームの送信時：送信の受け付けに利用している Formspree（同社のプライバシーポリシーでは、これらの情報を不正防止やセキュリティの確保などに利用する旨が説明されています）
+            </li>
+          </ul>
+          <p>
+            当サイトには、Cookie を使用する仕組みや、アクセス解析・広告配信のツールは組み込んでいません。なお、外部サービスが独自に Cookie などを使用するかどうかは、各サービスの方針によります。
           </p>
         </section>
 
@@ -86,7 +100,7 @@ export default function PrivacyPage() {
               <dt className={styles.term}>Formspree</dt>
               <dd>
                 お問い合わせフォームの送信内容の受け付け・保存・通知に利用します。送信された内容は Formspree
-                の管理画面に保存されるほか、通知メールとして当サイトの運営者のメールアドレスに届きます。Formspree における情報の取り扱いは、
+                の管理画面に保存され、通知メールとして当サイト専用のメールアドレスに届きます。詳しくは、
                 <ExternalLink href="https://formspree.io/legal/privacy-policy/">
                   Formspree のプライバシーポリシー
                 </ExternalLink>
@@ -94,38 +108,88 @@ export default function PrivacyPage() {
               </dd>
             </div>
             <div className={styles.row}>
+              <dt className={styles.term}>Gmail</dt>
+              <dd>
+                お問い合わせの通知メールの受信と、ご返信のやり取りに利用します（Google が提供するメールサービスです）。詳しくは、
+                <ExternalLink href="https://policies.google.com/privacy">
+                  Google のプライバシーポリシー
+                </ExternalLink>
+                をご確認ください。
+              </dd>
+            </div>
+            <div className={styles.row}>
               <dt className={styles.term}>Cloudflare</dt>
-              <dd>当サイトの配信（Webサイトをインターネット上で表示するための仕組み）に利用します。</dd>
+              <dd>
+                当サイトの配信（Webサイトをインターネット上で表示するための仕組み）に利用します。配信の際に、通信に関する情報が処理されます。詳しくは、
+                <ExternalLink href="https://www.cloudflare.com/privacypolicy/">
+                  Cloudflare のプライバシーポリシー
+                </ExternalLink>
+                をご確認ください。
+              </dd>
             </div>
           </dl>
+          <p>
+            これらのサービスの提供者には国外の事業者が含まれ、お預かりした情報が国外で保存・処理される場合があります。
+          </p>
         </section>
 
         <section className={styles.section} aria-labelledby="privacy-storage">
           <h2 id="privacy-storage" className={styles.heading}>
-            4. 保存・管理
+            4. 保存期間と削除
           </h2>
+          <ul className={styles.list}>
+            <li>
+              お問い合わせの通知メールと、ご返信のやり取りのメールは、最後のやり取りから3か月以内に削除します。
+            </li>
+            <li>
+              Formspree に保存された送信内容は、お問い合わせへの対応が終わった後、管理画面で削除できる範囲で速やかに削除します。
+            </li>
+            <li>
+              外部サービス上での保存期間や、各サービスが保持するバックアップ・記録（ログ）などは、各サービスの仕様・方針に従って管理されるもので、当サイトの運営者が直接削除できるものではありません。Formspree
+              上の情報の保存・削除についても、同社の仕様・方針によります。
+            </li>
+            <li>
+              ご依頼をお受けした場合の契約・請求に関する情報は、お問い合わせの情報とは別に、必要な期間保管します。
+            </li>
+          </ul>
           <p>
-            お預かりした情報は、お問い合わせへの対応に必要な期間保管し、不要になった後は削除するよう努めます。運営者のメールアドレスに届いた通知メールについても同様です。外部サービス上での保存期間は、各サービスの利用条件によります。
+            お預かりした情報は、当サイト専用のアカウントで管理し、2段階認証を設定するなど、漏えいや紛失を防ぐよう努めます。
           </p>
-          <p>情報の漏えいや紛失を防ぐため、適切な管理に努めます。</p>
         </section>
 
         <section className={styles.section} aria-labelledby="privacy-third-party">
           <h2 id="privacy-third-party" className={styles.heading}>
             5. 第三者への提供
           </h2>
+          <p>法令に基づく場合を除き、ご本人の同意なく第三者に提供することはありません。</p>
           <p>
-            法令に基づく場合を除き、ご本人の同意なく第三者に提供することはありません。なお、上記「3.
-            外部サービスの利用」に記載したサービスは、お問い合わせの受け付けのために利用するものです。
+            上記「3.
+            外部サービスの利用」に記載したサービス（国外の事業者を含みます）の利用が、法令上の「第三者への提供」や「外国にある第三者への提供」に当たるかどうか、また、それに伴うご本人への情報提供や同意の方法については、現在確認中です。確認後、このページを更新します。
+          </p>
+        </section>
+
+        <section className={styles.section} aria-labelledby="privacy-request">
+          <h2 id="privacy-request" className={styles.heading}>
+            6. 開示・訂正・削除のご依頼
+          </h2>
+          <p>
+            ご自身の情報の開示・訂正・削除をご希望の場合は、
+            <Link href="/contact" className={styles.link}>
+              お問い合わせフォーム
+            </Link>
+            からご連絡ください。ご本人確認のため、お問い合わせの際にご入力いただいたメールアドレス宛てにご連絡します。
+          </p>
+          <p>
+            外部サービスが保持している情報のうち、当サイトの運営者が削除できないものがある場合は、その旨をお伝えします。
           </p>
         </section>
 
         <section className={styles.section} aria-labelledby="privacy-contact">
           <h2 id="privacy-contact" className={styles.heading}>
-            6. お問い合わせ窓口
+            7. お問い合わせ窓口
           </h2>
           <p>
-            ご自身の情報の確認・訂正・削除のご希望や、このページの内容に関するご質問は、
+            このページの内容に関するご質問は、
             <Link href="/contact" className={styles.link}>
               お問い合わせフォーム
             </Link>
@@ -135,7 +199,7 @@ export default function PrivacyPage() {
 
         <section className={styles.section} aria-labelledby="privacy-revision">
           <h2 id="privacy-revision" className={styles.heading}>
-            7. 改定
+            8. 改定
           </h2>
           <p>
             このページの内容は、必要に応じて改定することがあります。改定した場合は、このページでお知らせします。
