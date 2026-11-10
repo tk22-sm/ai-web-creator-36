@@ -85,6 +85,12 @@ export const featuredProjects = projects.filter((project) => project.featured);
 export const HERO_PROJECT_SLUG = "mellow-coffee";
 
 /**
+ * Home の Hero で、代表作品の画像に小さく重ねる2つ目の作品の slug（D-066）。
+ * 1024px 以上でだけ表示する。スマホでは代表作品だけを大きく見せる。
+ */
+export const HERO_SUB_PROJECT_SLUG = "ki-to-hibi";
+
+/**
  * 作品が架空案件であることを伝える定型文を返す。
  * 詳細ページの冒頭・Overview・メタデータ（description）で同じ文言を使い、表記ゆれを防ぐ。
  *
