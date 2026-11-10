@@ -39,7 +39,7 @@ const facts: readonly Fact[] = [
  */
 export default function AboutPreview() {
   return (
-    <Section id="about" eyebrow="About" title="私について">
+    <Section id="about" spacing="tight" eyebrow="About" title="私について">
       <div className={styles.grid}>
         <div className={styles.summary}>
           <p>

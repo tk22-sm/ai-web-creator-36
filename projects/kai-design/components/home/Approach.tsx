@@ -41,8 +41,11 @@ const steps: readonly Step[] = [
  */
 export default function Approach() {
   return (
+    // 補足のセクションとして余白を詰め、面の色で区切る（D-065）
     <Section
       id="approach"
+      spacing="tight"
+      tone="surface"
       eyebrow="Approach"
       title="想いを理解し、価値を見つけ、必要な人へ届ける。"
       lead="Webサイト制作で大切にしている考え方です。"

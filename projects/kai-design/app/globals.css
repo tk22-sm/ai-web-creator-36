@@ -60,6 +60,16 @@
   --gutter: clamp(1.25rem, 5vw, 4rem);
   /* セクション間隔：スマホ約72px → PC 約120px */
   --section-gap: clamp(4.5rem, 3rem + 6vw, 7.5rem);
+  /*
+   * トップページのリズム用の余白（D-065）。役割に応じて強弱を付ける。
+   * 375px で最小値、1440px で最大値になるように傾きを決めている。
+   * - lg：主役のセクション（制作実績・お問い合わせ）。スマホ 72px 〜 PC 136px
+   * - sm：補足のセクション（Approach・About）。スマホ 56px 〜 PC 80px
+   * - band：中身の少ない帯（記事0件の Journal）。スマホ 20px 〜 PC 28px
+   */
+  --section-gap-lg: clamp(4.5rem, 3.09rem + 6.01vw, 8.5rem);
+  --section-gap-sm: clamp(3.5rem, 2.97rem + 2.25vw, 5rem);
+  --section-gap-band: clamp(1.25rem, 1.07rem + 0.75vw, 1.75rem);
 
   --radius-md: 8px;
   --radius-lg: 12px;

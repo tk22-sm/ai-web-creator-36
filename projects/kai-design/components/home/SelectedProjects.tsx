@@ -15,6 +15,7 @@ export default function SelectedProjects() {
   return (
     <Section
       id="projects"
+      spacing="feature"
       eyebrow="Selected Projects"
       title="制作実績"
       lead="架空の企業・店舗を想定して制作した自主制作の作品です。実在の企業・店舗や受託案件ではありません。"

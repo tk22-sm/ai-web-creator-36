@@ -17,9 +17,22 @@
   }
 }
 
+/*
+ * 各段階の上の線。border ではなく疑似要素で描き、後続の PR で「線が伸びる」動き
+ * （transform: scaleX）を付けられるようにしている（D-065）。見た目は従来の border-top と同じ。
+ */
 .step {
+  position: relative;
   padding-top: var(--space-6);
-  border-top: 1px solid var(--color-border);
+}
+
+.step::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background-color: var(--color-border);
+  transform-origin: left center;
 }
 
 .number {

@@ -7,6 +7,51 @@
   border-top: 1px solid var(--color-border);
 }
 
+/* ---- トップページのリズム（D-065） ---- */
+
+/* feature：主役のセクション。スマホ約72px〜PC約136px */
+.feature {
+  padding-block: var(--section-gap-lg);
+}
+
+/* tight：補足のセクション。スマホ約56px〜PC約80px */
+.tight {
+  padding-block: var(--section-gap-sm);
+}
+
+/* surface：既存の面の色で区切る */
+.surface {
+  background-color: var(--color-surface);
+}
+
+/* band：中身の少ない帯。スマホは縦積み、768px 以上は見出し（左）と本文（右）を横並び */
+.band {
+  padding-block: var(--section-gap-band);
+}
+
+.band .inner {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.band .header {
+  display: block;
+  margin-bottom: 0;
+}
+
+.band .title {
+  margin-top: var(--space-1);
+  font-size: var(--fs-xl);
+}
+
+@media (min-width: 768px) {
+  .band .inner {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-12);
+  }
+}
+
 /* compact：作品詳細ページ用。スマホ約56px〜PC約80px */
 .compact {
   padding-block: clamp(3.5rem, 2.75rem + 3vw, 5rem);

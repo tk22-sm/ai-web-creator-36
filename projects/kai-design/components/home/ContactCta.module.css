@@ -22,6 +22,11 @@
   }
 }
 
+/* トップページの締めくくり：面の色のセクションの中で、パネルを背景色にして浮き立たせる（D-065） */
+.closing {
+  background-color: var(--color-bg);
+}
+
 .text {
   max-width: 40em;
 }
