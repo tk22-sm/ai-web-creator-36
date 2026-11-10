@@ -23,7 +23,7 @@ export default function Home() {
       <Approach />
       <AboutPreview />
       <Journal />
-      <ContactCta />
+      <ContactCta closing />
     </>
   );
 }

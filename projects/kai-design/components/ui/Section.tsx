@@ -14,10 +14,15 @@ type SectionProps = {
   action?: ReactNode;
   /**
    * セクションの上下の余白。
-   * - default：Home 用（スマホ約72px〜PC約120px）
+   * - default：標準（スマホ約72px〜PC約120px）。About・制作実績ページなどで使う
    * - compact：作品詳細など、文章を続けて読むページ用（STEP 3 で追加）
+   * - feature：トップの主役のセクション（スマホ約72px〜PC約136px。D-065）
+   * - tight：トップの補足のセクション（スマホ約56px〜PC約80px。D-065）
+   * - band：中身の少ない帯。見出しと本文を横並びにする（スマホ約20px〜PC約28px。D-065）
    */
-  spacing?: "default" | "compact";
+  spacing?: "default" | "compact" | "feature" | "tight" | "band";
+  /** 背景。surface にすると既存の面の色（--color-surface）で区切る（D-065） */
+  tone?: "default" | "surface";
   children: ReactNode;
 };
 
@@ -39,11 +44,18 @@ export default function Section({
   lead,
   action,
   spacing = "default",
+  tone = "default",
   children,
 }: SectionProps) {
   const headingId = `${id}-heading`;
-  // default のときは追加クラスなし（Home の見た目を STEP 2-B から変えないため）
-  const className = spacing === "compact" ? `${styles.section} ${styles.compact}` : styles.section;
+  // default のときは追加クラスなし（トップ以外のページの見た目を変えないため）
+  const className = [
+    styles.section,
+    spacing !== "default" && styles[spacing],
+    tone === "surface" && styles.surface,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <section id={id} className={className} aria-labelledby={headingId}>

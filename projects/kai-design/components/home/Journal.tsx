@@ -27,20 +27,29 @@ function formatDate(date: string): string {
  * - 独自ブログ・CMS は作らない（仕様書 4章）。
  *
  * データの流れ：data/articles.ts → 先頭から最大3件 → 記事カード
+ *
+ * 記事が0件の間は、大きな空のセクションにせず、見出しと案内を横並びにした細い帯で表示する（D-065）。
+ * data/articles.ts に記事を追加すると、自動で通常のセクション（説明文＋記事カード）に戻る。
  */
 export default function Journal() {
   const visibleArticles = articles.slice(0, MAX_ARTICLES);
+
+  if (visibleArticles.length === 0) {
+    return (
+      <Section id="journal" spacing="band" eyebrow="Journal" title="学習・制作記録">
+        <p className={styles.bandText}>
+          Web制作の学習や、作品づくりの過程を、noteで発信していく予定です。noteの記事は、現在公開準備中です。公開後、こちらでご紹介します。
+        </p>
+      </Section>
+    );
+  }
 
   return (
     <Section
       id="journal"
       eyebrow="Journal"
       title="学習・制作記録"
-      lead={
-        visibleArticles.length > 0
-          ? "Web制作の学習や、作品づくりの過程をnoteで発信しています。"
-          : "Web制作の学習や、作品づくりの過程を、noteで発信していく予定です。"
-      }
+      lead="Web制作の学習や、作品づくりの過程をnoteで発信しています。"
       action={
         noteProfileUrl && (
           <a
@@ -56,29 +65,25 @@ export default function Journal() {
         )
       }
     >
-      {visibleArticles.length > 0 ? (
-        <ul className={styles.list}>
-          {visibleArticles.map((article) => (
-            <li key={article.url}>
-              <a
-                href={article.url}
-                className={styles.card}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className={styles.meta}>
-                  <span>{article.category}</span>
-                  <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
-                </span>
-                <span className={styles.title}>{article.title}</span>
-                <span className="visually-hidden">（noteの記事・新しいタブで開きます）</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className={styles.empty}>noteの記事は、現在公開準備中です。公開後、こちらでご紹介します。</p>
-      )}
+      <ul className={styles.list}>
+        {visibleArticles.map((article) => (
+          <li key={article.url}>
+            <a
+              href={article.url}
+              className={styles.card}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className={styles.meta}>
+                <span>{article.category}</span>
+                <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
+              </span>
+              <span className={styles.title}>{article.title}</span>
+              <span className="visually-hidden">（noteの記事・新しいタブで開きます）</span>
+            </a>
+          </li>
+        ))}
+      </ul>
     </Section>
   );
 }

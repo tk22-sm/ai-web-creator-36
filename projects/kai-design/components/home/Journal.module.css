@@ -48,14 +48,6 @@
   line-height: var(--lh-heading);
 }
 
-/* 記事0件のときの案内。カードと同じ枠で「ここに記事が入る」ことを示す */
-.empty {
-  padding: var(--space-8) var(--space-6);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-lg);
-  color: var(--color-text-muted);
-  text-align: center;
-}
 
 .profileLink {
   display: inline-flex;
@@ -72,4 +64,10 @@
   .profileLink:hover {
     color: var(--color-accent-hover);
   }
+}
+
+/* 記事が0件の間の帯の本文（D-065）。準備中であることを控えめな文字で伝える */
+.bandText {
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
 }
