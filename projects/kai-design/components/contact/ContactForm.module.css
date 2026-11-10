@@ -136,6 +136,18 @@
 }
 
 /* ---- お知らせ・エラーサマリー・結果 ---- */
+/* 複数の段落を持つ案内（準備中の案内など） */
+.noticeStack {
+  display: grid;
+  gap: var(--space-2);
+}
+
+/* フォームが利用できない場合の代わりの連絡先（送信ボタンの下に控えめに表示） */
+.altContact {
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
 .notice,
 .statusMessage {
   padding: var(--space-4) var(--space-6);
