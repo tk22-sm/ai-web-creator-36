@@ -28,6 +28,7 @@ import {
   type ContactFormErrors,
   type ContactFormValues,
 } from "@/lib/contact-validation";
+import { instagram } from "@/data/contact-channels";
 import FormField from "./FormField";
 import styles from "./ContactForm.module.css";
 
@@ -276,10 +277,18 @@ export default function ContactForm({
     // method="post"：万一ブラウザ標準の送信が起きても、入力内容が URL（閲覧履歴・アクセスログ）に付かないようにする。
     // 標準の送信そのものは、送信ボタンの disabled（下記）と CSP の form-action 'none' で止める（D-060）。
     <form className={styles.form} method="post" noValidate onSubmit={handleSubmit} aria-busy={isSubmitting}>
+      {/*
+        送信先が未設定（準備中）のときは、代わりの連絡先として Instagram の DM を案内する（D-064）。
+        DM の受信テストは未実施のため、「受信を確認済み」とは書かない。
+      */}
       {!submitter && (
-        <p className={styles.notice}>
-          現在、このフォームからの送信は準備中です。入力内容の確認はできますが、送信はされません。
-        </p>
+        <div className={`${styles.notice} ${styles.noticeStack}`}>
+          <p>現在、お問い合わせフォームは準備中です。</p>
+          <p>
+            ご連絡をご希望の場合は、Kai Design の<InstagramLink />の DM をご利用ください。
+          </p>
+          <p>個人情報や機密性の高い内容は DM に記載せず、まずは簡単なご用件のみお送りください。</p>
+        </div>
       )}
       {/* テスト用フォームに接続したビルド（ローカル・プレビュー）だけに表示する。本番（production）では表示しない */}
       {submitter && mode === "test" && (
@@ -508,6 +517,27 @@ export default function ContactForm({
               : "入力内容を送信する"}
         </button>
       </div>
+      {/*
+        フォームが使える場合も、フォームが利用できないとき（障害など）の代わりの連絡先を控えめに案内する（D-064）。
+        準備中のときは上部の案内と重なるため表示しない。送信ボタンの後ろに置き、入力・送信の操作を妨げない。
+      */}
+      {submitter && (
+        <p className={styles.altContact}>
+          お問い合わせフォームをご利用いただけない場合は、<InstagramLink />の DM からご連絡ください。DM
+          には、個人情報や機密性の高い内容は記載せず、まずは簡単なご用件のみお送りください。
+        </p>
+      )}
     </form>
+  );
+}
+
+/** Kai Design の Instagram へのリンク。新しいタブで開くことを読み上げ用テキストでも伝える */
+function InstagramLink() {
+  return (
+    <a href={instagram.url} target="_blank" rel="noopener noreferrer" className={styles.inlineLink}>
+      Instagram（{instagram.handle}）
+      <span className="visually-hidden">（新しいタブで開きます）</span>
+      <span aria-hidden="true"> ↗</span>
+    </a>
   );
 }
