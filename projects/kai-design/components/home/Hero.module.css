@@ -1,28 +1,63 @@
+/*
+ * Hero のレイアウト（D-066）
+ * - スマホ：キャッチコピー → 作品画像 → 説明文・ボタンの順に縦に並べる。
+ * - 1024px 以上：左列にキャッチコピーと説明文、右列に作品画像。画面の高さには合わせず、内容の高さで終える。
+ * - 作品画像は右端を画面の端まで伸ばす（はみ出した分は overflow-x: clip で切る。横スクロールを出さない）。
+ * - 下の Selected Projects は上の余白が大きい（Section の feature）。Hero の下の余白は小さめにして、合計が空きすぎないようにする。
+ */
 .hero {
-  padding-block: var(--space-16) var(--section-gap);
+  overflow-x: clip;
+  padding-block: var(--space-8) var(--space-12);
 }
 
-/* スマホ：テキスト上＋画像下 / 1024px 以上：テキスト左＋画像右（仕様書 5章） */
 .inner {
   display: grid;
-  gap: var(--space-12);
+  grid-template-areas:
+    "head"
+    "visual"
+    "body";
+  gap: var(--space-8);
   max-width: calc(var(--content-max) + var(--gutter) * 2);
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
 
 @media (min-width: 1024px) {
+  .hero {
+    padding-block: var(--space-16) var(--space-12);
+  }
+
   .inner {
-    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-    align-items: center;
-    gap: var(--space-16);
-    min-height: calc(100svh - var(--header-height) - var(--space-16) * 2);
+    grid-template-areas:
+      "head visual"
+      "body visual";
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: var(--space-12);
+    row-gap: 0;
   }
 }
 
 /* 見出しの文字サイズをこの列の幅に合わせて決めるため、コンテナクエリの基準にする */
-.text {
+.head {
+  grid-area: head;
   container-type: inline-size;
+}
+
+.body {
+  grid-area: body;
+}
+
+/* 1024px 以上：キャッチコピーと説明文を1つのまとまりとして、画像の高さの中央付近に寄せる */
+@media (min-width: 1024px) {
+  .head {
+    align-self: end;
+  }
+
+  .body {
+    align-self: start;
+    margin-top: var(--space-8);
+  }
 }
 
 .eyebrow {
@@ -64,7 +99,6 @@
 
 .description {
   max-width: 30em;
-  margin-top: var(--space-8);
   font-size: var(--fs-lg);
   /* 最終行に1〜2文字だけ残る改行を避ける（対応ブラウザのみ） */
   text-wrap: pretty;
@@ -80,7 +114,7 @@
 .actions {
   display: grid;
   gap: var(--space-3);
-  margin-top: var(--space-12);
+  margin-top: var(--space-8);
 }
 
 @media (min-width: 480px) {
@@ -91,18 +125,119 @@
   }
 }
 
-.frame {
+@media (min-width: 1024px) {
+  .actions {
+    margin-top: var(--space-12);
+  }
+}
+
+/* 下に作品が続くことを示す控えめな表示（装飾）。1024px 以上でだけ出す */
+.scroll {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .scroll {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-12);
+    color: var(--color-text-muted);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.08em;
+  }
+
+  .scroll::before {
+    content: "";
+    width: 2rem;
+    height: 1px;
+    background-color: var(--color-border);
+  }
+}
+
+/* ---------- 作品画像 ---------- */
+
+.visual {
+  grid-area: visual;
+  min-width: 0;
+}
+
+/* スマホ：画像を右端まで伸ばして大きく見せる（左側だけ角を丸める） */
+.media {
+  margin-right: calc(var(--gutter) * -1);
+}
+
+.mainFrame,
+.subFrame {
   overflow: hidden;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+}
+
+.mainFrame {
+  border-right: 0;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+
+.subFrame {
+  display: none;
 }
 
 .image {
+  display: block;
   width: 100%;
+  height: auto;
 }
 
 .caption {
   margin-top: var(--space-3);
   color: var(--color-text-muted);
   font-size: var(--fs-sm);
+}
+
+.captionLine {
+  display: block;
+}
+
+.captionSub {
+  display: none;
+}
+
+/*
+ * 1024px 以上：MELLOW COFFEE を大きく、木と日々を左下に小さく重ねる。
+ * - .media の左と下に余白を取り、その余白の角に2つ目の画像を置く。重なりは画像どうしだけで、文字には重ならない。
+ * - .media の高さは2つ目の画像の下端までを含むため、キャプションは画像に隠れない。
+ * - 右端は画面の端まで伸ばす：列の右端から画面の端までの距離 = gutter ＋ 中央寄せの外側の余白。
+ */
+@media (min-width: 1024px) {
+  .visual {
+    align-self: center;
+  }
+
+  .media {
+    position: relative;
+    margin-right: calc(
+      (var(--gutter) + max(0px, (100vw - var(--content-max) - var(--gutter) * 2) / 2)) * -1
+    );
+    padding-bottom: 11%;
+    padding-left: 10%;
+  }
+
+  .subFrame {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40%;
+    border-radius: var(--radius-md);
+    /* 背景色の縁取りで、下の画像との境目をはっきりさせる（新しい色は使わない） */
+    outline: 6px solid var(--color-bg);
+  }
+
+  .caption {
+    margin-top: var(--space-4);
+  }
+
+  .captionSub {
+    display: block;
+  }
 }
