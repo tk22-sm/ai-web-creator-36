@@ -1,0 +1,169 @@
+/*
+ * Home の Selected Projects（D-067）
+ * - スマホ・タブレット：作品ごとに縦並び。画像は右端まで伸ばす（Hero のスマホ表示と同じ）。
+ * - 1024px 以上：画像 7・文字 5 の2列で、作品ごとに左右を入れ替える。画像は外側の余白（gutter）まで伸ばす。
+ * - 伸ばす幅は gutter の範囲だけなので、画面の外にははみ出さない（横スクロールが出ない）。
+ * - 作品と作品の間は補足セクションと同じ余白（--section-gap-sm：スマホ約56px〜PC約80px）。
+ */
+.list {
+  display: grid;
+  gap: var(--section-gap-sm);
+}
+
+/*
+ * 作品1件。作品名リンクの ::after を作品全体に広げるため、基準（position: relative）を置く。
+ * スマホでは画像を右端まで伸ばすため、作品ごと右の gutter まで広げ、文字側は同じ幅だけ内側に戻す。
+ */
+.project {
+  position: relative;
+  display: grid;
+  grid-template-areas:
+    "media"
+    "body";
+  margin-right: calc(var(--gutter) * -1);
+}
+
+.media {
+  grid-area: media;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-right: 0;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.body {
+  grid-area: body;
+  padding-top: var(--space-6);
+  padding-right: var(--gutter);
+}
+
+/* ---------- 文字の情報 ---------- */
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+/* 作品の通し番号（装飾）。英語コピーと同じ扱いで、アクセント色の小さな数字にする */
+.index {
+  color: var(--color-accent);
+  font-family: var(--font-heading);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* 区分のラベルは作品カード（ProjectCard）と同じ見た目 */
+.label {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-accent);
+  border-radius: 999px;
+  color: var(--color-accent);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+
+.title {
+  margin-top: var(--space-4);
+  font-size: var(--fs-2xl);
+  line-height: 1.3;
+}
+
+/* 作品全体を押せるようにする（リンク要素は作品名の1つだけ） */
+.link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.kind {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+.summary {
+  max-width: 32em;
+  margin-top: var(--space-6);
+  text-wrap: pretty;
+}
+
+.techs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-6);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+/* 押せることを示す表示。見た目は文字リンク（ButtonLink の text）にそろえる */
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
+  padding-block: var(--space-2);
+  color: var(--color-accent);
+  font-weight: 700;
+  line-height: 1.5;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.4em;
+}
+
+.arrow {
+  text-decoration: none;
+}
+
+/* ---------- 1024px 以上：交互の2列 ---------- */
+@media (min-width: 1024px) {
+  /* 1作品目（奇数）：画像左・文字右。画像を左の gutter まで伸ばす */
+  .project {
+    grid-template-areas: "media body";
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    align-items: center;
+    column-gap: var(--space-16);
+    margin-right: 0;
+    margin-left: calc(var(--gutter) * -1);
+  }
+
+  .media {
+    border-right: 1px solid var(--color-border);
+    border-left: 0;
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  }
+
+  .body {
+    padding-top: 0;
+    padding-right: 0;
+  }
+
+  /* 2作品目（偶数）：文字左・画像右。画像を右の gutter まで伸ばす */
+  .item:nth-child(even) .project {
+    grid-template-areas: "body media";
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    margin-right: calc(var(--gutter) * -1);
+    margin-left: 0;
+  }
+
+  .item:nth-child(even) .media {
+    border-right: 0;
+    border-left: 1px solid var(--color-border);
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  }
+}

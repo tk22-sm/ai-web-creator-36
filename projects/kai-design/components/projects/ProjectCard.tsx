@@ -23,7 +23,7 @@ type ProjectCardProps = {
 /**
  * 自主制作1件分のカード（Server Component）。
  *
- * データの流れ：data/projects.ts → ProjectGrid（Home・/projects・詳細ページの「他の制作実績」）→ project props → このカード
+ * データの流れ：data/projects.ts → ProjectGrid（/projects・詳細ページの「他の制作実績」。Home は FeaturedProjectList、D-067）→ project props → このカード
  *
  * - 「自主制作」と「架空企業／架空店舗」のラベルを必ず表示し、受託実績と誤認させない（仕様書 3章）。
  * - カード全体を押せるようにしつつ、リンク要素は作品名の1つだけにする。

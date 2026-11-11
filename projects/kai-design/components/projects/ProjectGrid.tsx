@@ -18,8 +18,9 @@ type ProjectGridProps = {
 /**
  * 作品カードの一覧（Server Component）。
  *
- * Home の Selected Projects、/projects、詳細ページの「他の制作実績」で同じ並べ方を使うため、
+ * /projects と詳細ページの「他の制作実績」で同じ並べ方を使う。
  * STEP 2-B で SelectedProjects に書いていたグリッドをこの部品に切り出した（D-027）。
+ * Home の Selected Projects は、PR 3 から交互レイアウトの FeaturedProjectList を使う（D-067）。
  * スマホ 1列 / 768px 以上 2列。作品が増えても行が増えるだけで、レイアウトの変更は不要。
  */
 export default function ProjectGrid({ projects, headingLevel, eagerCount = 0 }: ProjectGridProps) {
