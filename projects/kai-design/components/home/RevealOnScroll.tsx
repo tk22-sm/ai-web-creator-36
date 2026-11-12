@@ -11,7 +11,7 @@ import { useEffect } from "react";
  * ■ コンテンツが隠れたままにならないための設計
  * - 隠れた状態（opacity: 0）は、この部品が html に data-reveal-ready を付けたときだけ有効になる。
  *   JavaScript が無効・IntersectionObserver が使えない・動きを減らす設定のときは付けないため、最初から全部表示される。
- * - 準備の時点ですでに画面内（または画面より上）にある要素には、先に data-revealed を付けてから
+ * - 準備の時点で一部でも画面内に見えている要素（または画面より上の要素）には、先に data-revealed を付けてから
  *   data-reveal-ready を付ける（同じ処理の中で行うので、一度消えてから現れるちらつきは起きない）。
  * - 一度表示した要素は見張りをやめる（画面に入るたびに何度も動かない）。
  * - ページを離れるときは data-reveal-ready を外し、見張りを止める。
@@ -41,10 +41,11 @@ export default function RevealOnScroll() {
       { rootMargin: "0px 0px -10% 0px", threshold: 0 },
     );
 
-    const viewportBottom = window.innerHeight * 0.9;
+    // 画面の下端より上に上端がある要素は、一部でも見えている（または通り過ぎた）ため、動かさずにそのまま表示する。
+    // ここを画面の高さより小さくすると、下端に少し見えている要素が準備の瞬間に消えてしまう（D-068 追記）。
+    const viewportBottom = window.innerHeight;
     for (const target of targets) {
       if (target.getBoundingClientRect().top < viewportBottom) {
-        // すでに見えている（または通り過ぎた）要素は動かさずにそのまま表示する
         reveal(target);
       } else {
         observer.observe(target);

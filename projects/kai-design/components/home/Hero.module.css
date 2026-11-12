@@ -250,6 +250,8 @@
  * - 動かすのは opacity と transform だけで、レイアウト・画像サイズ・余白は変えない。
  * - 動きを減らす設定のときは動かさない（このブロックごと無効）。
  * - 「Scroll / Selected Works 02」は、最後に先頭の短い線が左から伸びる。
+ * - MELLOW COFFEE のメイン画像（.mainFrame）は透明にせず、移動だけにする（heroSlideUp）。
+ *   最初の描画から見える状態にして、ブラウザが LCP（最も大きく表示された要素）として画像を計測できるようにする（D-068 追記）。
  */
 @media (prefers-reduced-motion: no-preference) {
   .head {
@@ -257,7 +259,7 @@
   }
 
   .mainFrame {
-    animation: heroFadeUp 0.7s var(--ease-out) 0.1s both;
+    animation: heroSlideUp 0.7s var(--ease-out) 0.1s both;
   }
 
   .body {
@@ -286,6 +288,16 @@
 
   to {
     opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes heroSlideUp {
+  from {
+    transform: translateY(16px);
+  }
+
+  to {
     transform: none;
   }
 }

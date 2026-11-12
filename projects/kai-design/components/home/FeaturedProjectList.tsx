@@ -34,7 +34,7 @@ type FeaturedProjectListProps = {
  * - ホバー・フォーカス：画像の軽い拡大と「詳しく見る」の矢印の移動。CSS だけで行う。
  *   作品全体は作品名リンクの ::after で覆われているため、起点は .project:hover と、
  *   キーボード操作時の .project:has(.link:focus-visible)。
-  *
+ *
  * 「自主制作」と「架空企業／架空店舗」のラベルを必ず表示し、受託実績と誤認させない（仕様書 3章）。
  */
 export default function FeaturedProjectList({ projects }: FeaturedProjectListProps) {
