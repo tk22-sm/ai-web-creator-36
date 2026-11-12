@@ -1,12 +1,13 @@
 import { featuredProjects } from "@/data/projects";
-import ProjectGrid from "@/components/projects/ProjectGrid";
+import FeaturedProjectList from "./FeaturedProjectList";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Section from "@/components/ui/Section";
 
 /**
  * Home の Selected Projects（Server Component）。
  *
- * データの流れ：data/projects.ts の featuredProjects → ProjectGrid → ProjectCard
+ * データの流れ：data/projects.ts の featuredProjects → FeaturedProjectList（Home 専用の交互レイアウト、D-067）
+ * /projects と詳細ページの「他の制作実績」は従来どおり ProjectGrid → ProjectCard を使う。
  * 作品が増えた場合は data 側の featured で Home に出す作品を絞り、全件は /projects（STEP 3）で見せる。
  *
  * リード文で「自主制作であり、実在の企業・店舗や受託案件ではない」ことを明示する（仕様書 3章・6章）。
@@ -25,7 +26,7 @@ export default function SelectedProjects() {
         </ButtonLink>
       }
     >
-      <ProjectGrid projects={featuredProjects} />
+      <FeaturedProjectList projects={featuredProjects} />
     </Section>
   );
 }
