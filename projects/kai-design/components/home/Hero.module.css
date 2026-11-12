@@ -241,3 +241,83 @@
     display: block;
   }
 }
+
+/*
+ * 表示演出（D-068）
+ * - ページを開いたときに一度だけ、キャッチコピー → 作品画像 → 説明文・ボタン → 2つ目の画像 の順に、
+ *   下から少し（16px）移動しながらフェードインする。0.7秒。
+ * - CSS のアニメーションだけで行う（JavaScript 不要）。JavaScript が無効でも動き、最後は通常の表示状態で止まる。
+ * - 動かすのは opacity と transform だけで、レイアウト・画像サイズ・余白は変えない。
+ * - 動きを減らす設定のときは動かさない（このブロックごと無効）。
+ * - 「Scroll / Selected Works 02」は、最後に先頭の短い線が左から伸びる。
+ * - MELLOW COFFEE のメイン画像（.mainFrame）は透明にせず、移動だけにする（heroSlideUp）。
+ *   最初の描画から見える状態にして、ブラウザが LCP（最も大きく表示された要素）として画像を計測できるようにする（D-068 追記）。
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .head {
+    animation: heroFadeUp 0.7s var(--ease-out) both;
+  }
+
+  .mainFrame {
+    animation: heroSlideUp 0.7s var(--ease-out) 0.1s both;
+  }
+
+  .body {
+    animation: heroFadeUp 0.7s var(--ease-out) 0.2s both;
+  }
+
+  .caption {
+    animation: heroFade 0.7s var(--ease-out) 0.35s both;
+  }
+
+  .subFrame {
+    animation: heroFadeUp 0.7s var(--ease-out) 0.4s both;
+  }
+
+  .scroll::before {
+    transform-origin: left center;
+    animation: heroLine 0.6s var(--ease-out) 0.9s both;
+  }
+}
+
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes heroSlideUp {
+  from {
+    transform: translateY(16px);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@keyframes heroFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes heroLine {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: none;
+  }
+}

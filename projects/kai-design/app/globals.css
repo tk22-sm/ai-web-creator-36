@@ -216,6 +216,41 @@ button {
   }
 }
 
+/*
+ * スクロールに合わせた表示演出（D-068、components/home/RevealOnScroll.tsx）
+ * - 隠れた状態は html[data-reveal-ready] のときだけ有効（JS 無効・IntersectionObserver 非対応では最初から表示）。
+ * - 画面に入った要素には data-revealed が付き、通常の表示状態（opacity: 1・transform: none）に戻る。
+ * - トランジションは表示するとき（data-revealed）だけに付ける。隠すときは一瞬で切り替え、画面外の要素が
+ *   フェードアウトして見えることを防ぐ。
+ * - 動かすのは opacity と transform だけ（レイアウトは変えない）。
+ * - data-reveal="fade"：移動せず、フェードだけにする。作品全体を覆うリンクの ::after を含む要素に使う
+ *   （transform を付けると ::after の基準がその要素に変わり、押せる範囲が一時的に狭くなり、レイアウトのずれ（CLS）にも数えられるため）。
+ * - 時間差は data-reveal-delay="1"（約0.12秒）で付ける。
+ * - 表示の動き：0.7 秒・easeOutCubic（cubic-bezier(0.33, 1, 0.68, 1)）。サイト共通の --ease-out は立ち上がりが急で、
+ *   0.15 秒ほどでほぼ完了して見えるため、この演出だけ緩やかな曲線にする（Hero と --ease-out は変えない）。
+ * - 画面表示（screen）だけに適用する。印刷時はまだ表示していない要素も含めて、すべて表示する。
+ */
+@media screen and (prefers-reduced-motion: no-preference) {
+  :root[data-reveal-ready] [data-reveal]:not([data-revealed]) {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  :root[data-reveal-ready] [data-reveal="fade"]:not([data-revealed]) {
+    transform: none;
+  }
+
+  :root[data-reveal-ready] [data-reveal][data-revealed] {
+    transition:
+      opacity 0.7s cubic-bezier(0.33, 1, 0.68, 1),
+      transform 0.7s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+
+  :root[data-reveal-ready] [data-reveal][data-revealed][data-reveal-delay="1"] {
+    transition-delay: 0.12s;
+  }
+}
+
 /* 動きを減らす設定の利用者には、トランジションとアニメーションをほぼ無効化する */
 @media (prefers-reduced-motion: reduce) {
   *,
