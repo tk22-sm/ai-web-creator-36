@@ -26,9 +26,15 @@ type FeaturedProjectListProps = {
  *   画像や文字のどこを押しても詳細ページへ移動できるようにする。
  * - 「詳しく見る →」は押せることを示す表示。作品全体が作品名のリンクで押せるため、読み上げでは重複させない（aria-hidden）。
  *
- * ■ 後続の PR（動き）に向けて
- * - 画像（.media）と文字（.body）を別の要素にしてあり、data-* 属性と CSS で個別に動きを付けられる。
- *
+ * ■ 動き（D-068）
+ * - スクロール：画像（.media）と文字（.body）に data-reveal を付け、RevealOnScroll（app/page.tsx）が
+ *   画面に入ったときに表示する。画像は下から少し移動しながら、文字は画像より少し遅れてフェードインする。
+ *   文字（.body）は作品全体を覆うリンクの ::after を含むため、移動はさせずフェードだけにする（data-reveal="fade"）。
+ *   JavaScript が無効のときや、動きを減らす設定のときは最初から表示される。
+ * - ホバー・フォーカス：画像の軽い拡大と「詳しく見る」の矢印の移動。CSS だけで行う。
+ *   作品全体は作品名リンクの ::after で覆われているため、起点は .project:hover と、
+ *   キーボード操作時の .project:has(.link:focus-visible)。
+  *
  * 「自主制作」と「架空企業／架空店舗」のラベルを必ず表示し、受託実績と誤認させない（仕様書 3章）。
  */
 export default function FeaturedProjectList({ projects }: FeaturedProjectListProps) {
@@ -39,7 +45,7 @@ export default function FeaturedProjectList({ projects }: FeaturedProjectListPro
         return (
           <li key={slug} className={styles.item}>
             <article className={styles.project}>
-              <div className={styles.media}>
+              <div className={styles.media} data-reveal>
                 <Image
                   src={thumbnail.src}
                   alt={thumbnail.alt}
@@ -52,7 +58,7 @@ export default function FeaturedProjectList({ projects }: FeaturedProjectListPro
                 />
               </div>
 
-              <div className={styles.body}>
+              <div className={styles.body} data-reveal="fade" data-reveal-delay="1">
                 <div className={styles.meta}>
                   {/* 作品の通し番号は装飾（順序は ol で伝わる）のため読み上げない */}
                   <span className={styles.index} lang="en" aria-hidden="true">

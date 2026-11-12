@@ -130,6 +130,39 @@
   text-decoration: none;
 }
 
+/*
+ * ホバー・フォーカス演出（D-068）
+ * - 画像の軽い拡大（1.03倍）と、「詳しく見る」の矢印の小さな移動。0.3秒。
+ * - 画像は .media の overflow: hidden の中で拡大するため、周りのレイアウトはずれない。
+ * - ホバーは、ホバーできる端末（マウスなど）だけ。タッチ操作では動きに頼らない。
+ * - キーボード操作で作品名にフォーカスしたときも同じ動きにする（フォーカスリングは作品名に表示）。
+ * - 動きを減らす設定のときは拡大・移動しない。
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .image,
+  .arrow {
+    transition: transform 0.3s var(--ease-out);
+  }
+
+  .project:has(.link:focus-visible) .image {
+    transform: scale(1.03);
+  }
+
+  .project:has(.link:focus-visible) .arrow {
+    transform: translateX(4px);
+  }
+
+  @media (hover: hover) {
+    .project:hover .image {
+      transform: scale(1.03);
+    }
+
+    .project:hover .arrow {
+      transform: translateX(4px);
+    }
+  }
+}
+
 /* ---------- 1024px 以上：交互の2列 ---------- */
 @media (min-width: 1024px) {
   /* 1作品目（奇数）：画像左・文字右。画像を左の gutter まで伸ばす */
