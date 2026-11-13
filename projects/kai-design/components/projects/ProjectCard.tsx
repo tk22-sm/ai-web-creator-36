@@ -18,6 +18,12 @@ type ProjectCardProps = {
    * - eager：すぐに読み込む。ページを開いた直後に見える位置のカード（/projects の1行目）で使う
    */
   imageLoading?: "eager" | "lazy";
+  /**
+   * スクロールで表示するときの時間差の段階（D-069）。
+   * - 0（既定）：画像はすぐ、文字は 0.12 秒遅れて表示する
+   * - 1：画像は 0.12 秒、文字は 0.24 秒遅れて表示する（2列の右側のカードで使う）
+   */
+  revealDelay?: 0 | 1;
 };
 
 /**
@@ -35,6 +41,7 @@ export default function ProjectCard({
   project,
   headingLevel = "h3",
   imageLoading = "lazy",
+  revealDelay = 0,
 }: ProjectCardProps) {
   const { slug, title, kind, fictionLabel, summary, techs, thumbnail } = project;
   // JSX では小文字で始まる名前は HTML タグ名そのもの（<headingLevel> というタグ）と解釈されるため、
@@ -44,7 +51,15 @@ export default function ProjectCard({
 
   return (
     <article className={styles.card}>
-      <div className={styles.media}>
+      {/*
+        スクロールで画面に入ったときに、画像は移動せずにフェードインする（D-069）。
+        文字（.body）はカード全体を覆う作品名リンクの ::after を含むため、移動させずフェードだけにする（D-068）。
+      */}
+      <div
+        className={styles.media}
+        data-reveal="image"
+        data-reveal-delay={revealDelay > 0 ? String(revealDelay) : undefined}
+      >
         <Image
           src={thumbnail.src}
           alt={thumbnail.alt}
@@ -57,7 +72,7 @@ export default function ProjectCard({
         />
       </div>
 
-      <div className={styles.body}>
+      <div className={styles.body} data-reveal="fade" data-reveal-delay={String(revealDelay + 1)}>
         <ul className={styles.labels} aria-label="作品の区分">
           <li className={styles.label}>自主制作</li>
           <li className={styles.label}>{fictionLabel}</li>

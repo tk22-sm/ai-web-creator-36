@@ -41,7 +41,7 @@ export default function AboutPreview() {
   return (
     <Section id="about" spacing="tight" eyebrow="About" title="私について">
       <div className={styles.grid}>
-        <div className={styles.summary}>
+        <div className={styles.summary} data-reveal>
           <p>
             2021年からシステムエンジニアとして、業務システムの開発・設計・テストに携わってきました。2026年4月からは要件定義やテスト推進にも取り組んでいます。
           </p>
@@ -53,7 +53,7 @@ export default function AboutPreview() {
           </div>
         </div>
 
-        <dl className={styles.facts}>
+        <dl className={styles.facts} data-reveal data-reveal-delay="1">
           {facts.map((fact) => (
             <div key={fact.term} className={styles.fact}>
               <dt className={styles.term}>{fact.term}</dt>

@@ -32,6 +32,8 @@ export default function ProjectGrid({ projects, headingLevel, eagerCount = 0 }: 
             project={project}
             headingLevel={headingLevel}
             imageLoading={index < eagerCount ? "eager" : "lazy"}
+            // 768px 以上の2列で、右側のカードを少し遅れて表示する（D-069）
+            revealDelay={index % 2 === 1 ? 1 : 0}
           />
         </li>
       ))}

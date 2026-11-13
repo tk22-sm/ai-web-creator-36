@@ -60,7 +60,8 @@ export default function Section({
   return (
     <section id={id} className={className} aria-labelledby={headingId}>
       <div className={styles.inner}>
-        <div className={styles.header}>
+        {/* 見出しエリアはスクロールで画面に入ったときに表示する（D-069）。中身は各ページ側で印を付ける */}
+        <div className={styles.header} data-reveal>
           <div className={styles.headingGroup}>
             <p className={styles.eyebrow} lang="en">
               {eyebrow}

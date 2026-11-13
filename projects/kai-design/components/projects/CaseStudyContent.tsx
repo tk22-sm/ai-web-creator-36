@@ -20,7 +20,8 @@ export default function CaseStudyContent({ block }: CaseStudyContentProps) {
   const { paragraphs, list, listLabel, items } = block;
 
   return (
-    <div className={styles.content}>
+    // セクションの見出しより少し遅れて、スクロールで画面に入ったときに表示する（D-069）
+    <div className={styles.content} data-reveal data-reveal-delay="1">
       {paragraphs && (
         <div className={styles.paragraphs}>
           {paragraphs.map((paragraph) => (

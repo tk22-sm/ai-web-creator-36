@@ -27,8 +27,8 @@ type FeaturedProjectListProps = {
  * - 「詳しく見る →」は押せることを示す表示。作品全体が作品名のリンクで押せるため、読み上げでは重複させない（aria-hidden）。
  *
  * ■ 動き（D-068）
- * - スクロール：画像（.media）と文字（.body）に data-reveal を付け、RevealOnScroll（app/page.tsx）が
- *   画面に入ったときに表示する。画像は下から少し移動しながら、文字は画像より少し遅れてフェードインする。
+ * - スクロール：画像（.media）と文字（.body）に data-reveal を付け、RevealOnScroll（app/layout.tsx）が
+ *   画面に入ったときに表示する。画像は移動せずに 1.0 秒で（D-069）、文字は画像より少し遅れてフェードインする。
  *   文字（.body）は作品全体を覆うリンクの ::after を含むため、移動はさせずフェードだけにする（data-reveal="fade"）。
  *   JavaScript が無効のときや、動きを減らす設定のときは最初から表示される。
  * - ホバー・フォーカス：画像の軽い拡大と「詳しく見る」の矢印の移動。CSS だけで行う。
@@ -45,7 +45,7 @@ export default function FeaturedProjectList({ projects }: FeaturedProjectListPro
         return (
           <li key={slug} className={styles.item}>
             <article className={styles.project}>
-              <div className={styles.media} data-reveal>
+              <div className={styles.media} data-reveal="image">
                 <Image
                   src={thumbnail.src}
                   alt={thumbnail.alt}
