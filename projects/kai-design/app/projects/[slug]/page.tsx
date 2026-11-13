@@ -137,7 +137,7 @@ export default async function ProjectDetailPage({ params }: PageProps<"/projects
       })}
 
       <Section id="links" eyebrow="Links" title="リンク" spacing="compact">
-        <div className={styles.links}>
+        <div className={styles.links} data-reveal data-reveal-delay="1">
           <ButtonLink href={project.siteUrl} variant="secondary" external>
             公開サイトを見る
           </ButtonLink>

@@ -26,7 +26,8 @@ export default function ContactPage() {
         title="お問い合わせ"
         lead="Webサイトの新規制作、コーディング、既存サイトの修正・改善などのご相談を受け付けています。個人で活動しているため、対応の範囲や時期はご相談内容を伺ったうえでお伝えします。"
       />
-      <div className={styles.body}>
+      {/* フォームは入力の妨げにならないよう、移動させずフェードだけにする（D-069） */}
+      <div className={styles.body} data-reveal="fade">
         <ContactForm />
       </div>
     </>

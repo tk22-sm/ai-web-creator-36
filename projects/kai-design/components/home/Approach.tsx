@@ -52,7 +52,13 @@ export default function Approach() {
     >
       <ol className={styles.list}>
         {steps.map((step, index) => (
-          <li key={step.name} className={styles.step}>
+          // 3段階を 0.12 秒刻みで順に表示する（時間差は2段階まで。D-069）。上の線は CSS で左から伸ばす
+          <li
+            key={step.name}
+            className={styles.step}
+            data-reveal
+            data-reveal-delay={index > 0 ? String(Math.min(index, 2)) : undefined}
+          >
             {/* 番号は <ol> の順序と重複するため読み上げない */}
             <span className={styles.number} aria-hidden="true">
               {String(index + 1).padStart(2, "0")}

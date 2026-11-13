@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import "./globals.css";
 
 /**
@@ -34,6 +35,8 @@ export const viewport: Viewport = {
  *
  * <main id="main"> をここで用意するため、各ページ（page.tsx）は <main> を書かず中身だけを返す。
  * スキップリンクはページ内で最初にフォーカスされる要素にし、キーボード利用者がナビを飛ばせるようにする。
+ * RevealOnScroll はスクロールに合わせた表示演出のきっかけを付ける部品で、画面には何も描画しない（D-069）。
+ * 全ページで動かすため、ページごとではなくここに1つだけ置く。
  */
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -45,6 +48,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Header />
         <main id="main">{children}</main>
         <Footer />
+        <RevealOnScroll />
       </body>
     </html>
   );

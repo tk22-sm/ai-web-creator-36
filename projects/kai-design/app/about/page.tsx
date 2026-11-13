@@ -49,7 +49,7 @@ export default function AboutPage() {
         spacing="compact"
       >
         {/* 時期と内容の組み合わせなので定義リストで書く（専用の年表部品は作らない。D-038） */}
-        <dl className={styles.definitionList}>
+        <dl className={styles.definitionList} data-reveal data-reveal-delay="1">
           {experiences.map((item) => (
             <div key={item.description} className={styles.row}>
               <dt className={styles.term}>{item.term}</dt>
@@ -66,7 +66,7 @@ export default function AboutPage() {
         lead="Webサイト制作で使用している技術・ツールです。"
         spacing="compact"
       >
-        <dl className={styles.definitionList}>
+        <dl className={styles.definitionList} data-reveal data-reveal-delay="1">
           {skillGroups.map((group) => (
             <div key={group.label} className={styles.row}>
               <dt className={styles.term}>{group.label}</dt>
@@ -92,8 +92,14 @@ export default function AboutPage() {
         spacing="compact"
       >
         <ul className={styles.services}>
-          {services.map((service) => (
-            <li key={service.title} className={styles.service}>
+          {services.map((service, index) => (
+            // 見出しより少し遅れて表示し、768px 以上の2列では右側をさらに 0.12 秒遅らせる（D-069）
+            <li
+              key={service.title}
+              className={styles.service}
+              data-reveal
+              data-reveal-delay={String((index % 2) + 1)}
+            >
               <h3 className={styles.serviceTitle}>{service.title}</h3>
               <p className={styles.serviceDescription}>{service.description}</p>
             </li>

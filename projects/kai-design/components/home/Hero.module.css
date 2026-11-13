@@ -243,47 +243,49 @@
 }
 
 /*
- * 表示演出（D-068）
+ * 表示演出（D-068・D-069）
  * - ページを開いたときに一度だけ、キャッチコピー → 作品画像 → 説明文・ボタン → 2つ目の画像 の順に、
- *   下から少し（16px）移動しながらフェードインする。0.7秒。
+ *   下から少し移動しながらフェードインする。
  * - CSS のアニメーションだけで行う（JavaScript 不要）。JavaScript が無効でも動き、最後は通常の表示状態で止まる。
  * - 動かすのは opacity と transform だけで、レイアウト・画像サイズ・余白は変えない。
  * - 動きを減らす設定のときは動かさない（このブロックごと無効）。
  * - 「Scroll / Selected Works 02」は、最後に先頭の短い線が左から伸びる。
+ * - 動きの量（D-069 で調整）：0.9 秒・下から 20px。時間差は 0〜0.5 秒（線は 1.1 秒から）。
+ *   スクロールで登場する要素（RevealOnScroll）とは別に、ページを開いたときにこの CSS だけで動く。
  * - MELLOW COFFEE のメイン画像（.mainFrame）は透明にせず、移動だけにする（heroSlideUp）。
  *   最初の描画から見える状態にして、ブラウザが LCP（最も大きく表示された要素）として画像を計測できるようにする（D-068 追記）。
  */
 @media (prefers-reduced-motion: no-preference) {
   .head {
-    animation: heroFadeUp 0.7s var(--ease-out) both;
+    animation: heroFadeUp 0.9s var(--ease-out) both;
   }
 
   .mainFrame {
-    animation: heroSlideUp 0.7s var(--ease-out) 0.1s both;
+    animation: heroSlideUp 0.9s var(--ease-out) 0.12s both;
   }
 
   .body {
-    animation: heroFadeUp 0.7s var(--ease-out) 0.2s both;
+    animation: heroFadeUp 0.9s var(--ease-out) 0.25s both;
   }
 
   .caption {
-    animation: heroFade 0.7s var(--ease-out) 0.35s both;
+    animation: heroFade 0.9s var(--ease-out) 0.45s both;
   }
 
   .subFrame {
-    animation: heroFadeUp 0.7s var(--ease-out) 0.4s both;
+    animation: heroFadeUp 0.9s var(--ease-out) 0.5s both;
   }
 
   .scroll::before {
     transform-origin: left center;
-    animation: heroLine 0.6s var(--ease-out) 0.9s both;
+    animation: heroLine 0.7s var(--ease-out) 1.1s both;
   }
 }
 
 @keyframes heroFadeUp {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(20px);
   }
 
   to {
@@ -294,7 +296,7 @@
 
 @keyframes heroSlideUp {
   from {
-    transform: translateY(16px);
+    transform: translateY(20px);
   }
 
   to {

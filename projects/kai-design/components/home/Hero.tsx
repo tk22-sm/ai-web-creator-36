@@ -26,7 +26,7 @@ import styles from "./Hero.module.css";
  *   （loading="lazy" のため、隠れている間は画像を読み込まない）。
  * - 「Scroll / Selected Works 02」は下に作品が続くことを示す装飾。読み上げでは不要なため aria-hidden にする。
  * - 画像は width / height 指定の next/image を使う（fill は style 属性を出し、CSP の生成が止まるため使わない）。
- * - フェードなどの動きは後続の PR で追加する。
+ * - ページを開いたときの動きは Hero.module.css のアニメーションだけで行う（D-068・D-069）。
  */
 export default function Hero() {
   const project = getProjectBySlug(HERO_PROJECT_SLUG);
