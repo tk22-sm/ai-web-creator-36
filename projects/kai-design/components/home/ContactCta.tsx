@@ -28,7 +28,11 @@ export default function ContactCta({ closing = false }: ContactCtaProps) {
       eyebrow="Contact"
       title="お問い合わせ"
     >
-      <div className={closing ? `${styles.panel} ${styles.closing}` : styles.panel}>
+      <div
+        className={closing ? `${styles.panel} ${styles.closing}` : styles.panel}
+        data-reveal
+        data-reveal-delay="1"
+      >
         <p className={styles.text}>
           Webサイトの新規制作、コーディング、既存サイトの修正・改善などのご相談を受け付けています。個人で活動しているため、対応の範囲や時期はご相談内容を伺ったうえでお伝えします。
         </p>

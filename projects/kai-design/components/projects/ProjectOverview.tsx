@@ -22,7 +22,8 @@ export default function ProjectOverview({ project }: ProjectOverviewProps) {
   ];
 
   return (
-    <div className={styles.overview}>
+    // セクションの見出しより少し遅れて、スクロールで画面に入ったときに表示する（D-069）
+    <div className={styles.overview} data-reveal data-reveal-delay="1">
       {/* 架空案件であることを概要欄でも明示する（ページ冒頭と合わせて2か所） */}
       <p className={styles.notice}>{getFictionNotice(project)}</p>
 

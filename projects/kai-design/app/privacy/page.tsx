@@ -55,8 +55,9 @@ export default function PrivacyPage() {
         </p>
       </PageHeader>
 
+      {/* 文書のページのため、各項目は移動させず控えめなフェードだけにする（D-069） */}
       <div className={styles.body}>
-        <section className={styles.section} aria-labelledby="privacy-collected">
+        <section className={styles.section} data-reveal="fade" aria-labelledby="privacy-collected">
           <h2 id="privacy-collected" className={styles.heading}>
             1. 取得する情報
           </h2>
@@ -77,7 +78,7 @@ export default function PrivacyPage() {
           </p>
         </section>
 
-        <section className={styles.section} aria-labelledby="privacy-purpose">
+        <section className={styles.section} data-reveal="fade" aria-labelledby="privacy-purpose">
           <h2 id="privacy-purpose" className={styles.heading}>
             2. 利用目的
           </h2>
@@ -88,7 +89,7 @@ export default function PrivacyPage() {
           </ul>
         </section>
 
-        <section className={styles.section} aria-labelledby="privacy-services">
+        <section className={styles.section} data-reveal="fade" aria-labelledby="privacy-services">
           <h2 id="privacy-services" className={styles.heading}>
             3. 外部サービスの利用
           </h2>
@@ -119,7 +120,7 @@ export default function PrivacyPage() {
           </p>
         </section>
 
-        <section className={styles.section} aria-labelledby="privacy-storage">
+        <section className={styles.section} data-reveal="fade" aria-labelledby="privacy-storage">
           <h2 id="privacy-storage" className={styles.heading}>
             4. 保存期間と削除
           </h2>
@@ -136,7 +137,7 @@ export default function PrivacyPage() {
           </ul>
         </section>
 
-        <section className={styles.section} aria-labelledby="privacy-security">
+        <section className={styles.section} data-reveal="fade" aria-labelledby="privacy-security">
           <h2 id="privacy-security" className={styles.heading}>
             5. 安全管理
           </h2>
@@ -148,7 +149,7 @@ export default function PrivacyPage() {
           </ul>
         </section>
 
-        <section className={styles.section} aria-labelledby="privacy-third-party">
+        <section className={styles.section} data-reveal="fade" aria-labelledby="privacy-third-party">
           <h2 id="privacy-third-party" className={styles.heading}>
             6. 第三者への提供
           </h2>
@@ -159,7 +160,7 @@ export default function PrivacyPage() {
           </p>
         </section>
 
-        <section className={styles.section} aria-labelledby="privacy-request">
+        <section className={styles.section} data-reveal="fade" aria-labelledby="privacy-request">
           <h2 id="privacy-request" className={styles.heading}>
             7. 個人情報に関するお問い合わせ
           </h2>
@@ -184,14 +185,14 @@ export default function PrivacyPage() {
           </ul>
         </section>
 
-        <section className={styles.section} aria-labelledby="privacy-operator">
+        <section className={styles.section} data-reveal="fade" aria-labelledby="privacy-operator">
           <h2 id="privacy-operator" className={styles.heading}>
             8. 運営者
           </h2>
           <p>Kai Design（個人）</p>
         </section>
 
-        <section className={styles.section} aria-labelledby="privacy-revision">
+        <section className={styles.section} data-reveal="fade" aria-labelledby="privacy-revision">
           <h2 id="privacy-revision" className={styles.heading}>
             9. 改定
           </h2>

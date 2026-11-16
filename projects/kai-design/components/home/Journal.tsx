@@ -37,7 +37,7 @@ export default function Journal() {
   if (visibleArticles.length === 0) {
     return (
       <Section id="journal" spacing="band" eyebrow="Journal" title="学習・制作記録">
-        <p className={styles.bandText}>
+        <p className={styles.bandText} data-reveal data-reveal-delay="1">
           Web制作の学習や、作品づくりの過程を、noteで発信していく予定です。noteの記事は、現在公開準備中です。公開後、こちらでご紹介します。
         </p>
       </Section>
@@ -65,7 +65,7 @@ export default function Journal() {
         )
       }
     >
-      <ul className={styles.list}>
+      <ul className={styles.list} data-reveal data-reveal-delay="1">
         {visibleArticles.map((article) => (
           <li key={article.url}>
             <a
