@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import PageTransition from "@/components/motion/PageTransition";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import "./globals.css";
 
@@ -37,10 +38,15 @@ export const viewport: Viewport = {
  * スキップリンクはページ内で最初にフォーカスされる要素にし、キーボード利用者がナビを飛ばせるようにする。
  * RevealOnScroll はスクロールに合わせた表示演出のきっかけを付ける部品で、画面には何も描画しない（D-069）。
  * 全ページで動かすため、ページごとではなくここに1つだけ置く。
+ * PageTransition はサイト内のページ移動の演出（旧ページのフェードアウト → 新しいページのフェードイン）を
+ * 行う部品で、画面には何も描画しない（D-070）。
+ * <html> の data-scroll-behavior="smooth" は Next.js 16 の設定。サイトの CSS は scroll-behavior: smooth だが、
+ * この属性があると、Next.js がページ移動のときだけ滑らかなスクロールを止め、先頭（または戻る・進むで元の位置）へ
+ * すぐに移動する。同じページ内の # への移動は、従来どおり滑らかにスクロールする（D-070）。
  */
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ja">
+    <html lang="ja" data-scroll-behavior="smooth">
       <body>
         <a href="#main" className="skip-link">
           本文へスキップ
@@ -49,6 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main id="main">{children}</main>
         <Footer />
         <RevealOnScroll />
+        <PageTransition />
       </body>
     </html>
   );
