@@ -94,14 +94,18 @@ export default function RevealOnScroll() {
       // （サイトの CSS が scroll-behavior: smooth のため、一瞬では移動しない）。
       // 移動中の位置で判定すると、画面外の要素まで「表示済み」になるため、スクロール位置が止まってから判定する。
       // 待っている間は準備状態ではない（すべて表示されている）ため、要素が消えて見えることはない。
+      // 先頭へ戻るスクロールは、ページが切り替わってから動き出すまでに 0.1 秒以上かかることがあるため、
+      // 数フレームではなく、同じ位置のまま 0.25 秒たったら「止まった」とみなす（上限は 1.5 秒）。
       const startedAt = performance.now();
       let lastY = Number.NaN;
-      let stillFrames = 0;
-      const waitForScroll = () => {
+      let stillSince = startedAt;
+      const waitForScroll = (now: number) => {
         const y = window.scrollY;
-        stillFrames = y === lastY ? stillFrames + 1 : 0;
-        lastY = y;
-        if (stillFrames >= 2 || performance.now() - startedAt > 1500) {
+        if (y !== lastY) {
+          lastY = y;
+          stillSince = now;
+        }
+        if (now - stillSince >= 250 || now - startedAt > 1500) {
           start();
         } else {
           frame = requestAnimationFrame(waitForScroll);

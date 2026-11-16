@@ -63,7 +63,7 @@
 /*
  * 上の線が左から伸びる演出（D-069）
  * - 各段階（.step）が RevealOnScroll で表示されるときに、線（::before）を左から右へ伸ばす。
- *   段階の文字のフェードインより少し遅らせて始める（0.15 秒後。段階ごとの時間差も足す）。
+ *   段階の文字のフェードインより少し遅らせて始め（0.2 秒後。段階ごとの時間差も足す）、1.2 秒で伸ばす（表示から約 1.4 秒で完了）。
  * - 隠れた状態は html[data-reveal-ready] のときだけ。JavaScript が無効・動きを減らす設定・印刷時は最初から線を表示する。
  * - 動かすのは transform だけ（線の太さ・位置は変えない）。
  */
@@ -73,14 +73,14 @@
   }
 
   :global(:root[data-reveal-ready]) .step[data-revealed]::before {
-    transition: transform 0.9s cubic-bezier(0.33, 1, 0.68, 1) 0.15s;
+    transition: transform 1.2s cubic-bezier(0.33, 1, 0.68, 1) 0.2s;
   }
 
   :global(:root[data-reveal-ready]) .step[data-revealed][data-reveal-delay="1"]::before {
-    transition-delay: 0.27s;
+    transition-delay: 0.38s;
   }
 
   :global(:root[data-reveal-ready]) .step[data-revealed][data-reveal-delay="2"]::before {
-    transition-delay: 0.39s;
+    transition-delay: 0.56s;
   }
 }

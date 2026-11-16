@@ -52,7 +52,7 @@ export default function Approach() {
     >
       <ol className={styles.list}>
         {steps.map((step, index) => (
-          // 3段階を 0.12 秒刻みで順に表示する（時間差は2段階まで。D-069）。上の線は CSS で左から伸ばす
+          // 3段階を 0.18 秒刻みで順に表示する（時間差は2段階まで。D-069）。上の線は CSS で左から伸ばす
           <li
             key={step.name}
             className={styles.step}

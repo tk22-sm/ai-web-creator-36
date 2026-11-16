@@ -93,7 +93,7 @@ export default function AboutPage() {
       >
         <ul className={styles.services}>
           {services.map((service, index) => (
-            // 見出しより少し遅れて表示し、768px 以上の2列では右側をさらに 0.12 秒遅らせる（D-069）
+            // 見出しより少し遅れて表示し、768px 以上の2列では右側をさらに 0.18 秒遅らせる（D-069）
             <li
               key={service.title}
               className={styles.service}
