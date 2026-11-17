@@ -1,12 +1,3 @@
-/* 草案であることの注記。架空案件の注記（ProjectOverview）と同じ見た目にそろえる */
-.draftNotice {
-  max-width: 40em;
-  margin-top: var(--space-6);
-  padding: var(--space-4) var(--space-6);
-  border-left: 2px solid var(--color-accent);
-  background-color: var(--color-surface);
-}
-
 /* 本文は PageHeader と同じ左端にそろえ、1行の長さを抑えて読みやすくする */
 .body {
   max-width: calc(var(--content-max) + var(--gutter) * 2);
