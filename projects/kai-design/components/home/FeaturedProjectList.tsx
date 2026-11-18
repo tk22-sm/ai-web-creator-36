@@ -21,6 +21,16 @@ type FeaturedProjectListProps = {
  *   読み上げ・Tab キーの順序は変えない。
  * - 画像は外側の余白（gutter）まで伸ばす（Hero の画像と同じ表現）。画面の外へははみ出さない。
  *
+ * ■ モックアップ（D-073）
+ * - 画像の領域（.media）を背景パネルにし、PC画面（thumbnail）をブラウザ風の枠で大きく置き、
+ *   スマホ画面（mobileScreenshot）をスマホ風の枠で右手前に重ねる。枠は CSS だけで作る（画像素材なし）。
+ * - パネルは縦横比を固定し、中の画面はパネルの幅を基準（コンテナクエリの cqi 単位）に配置する。
+ *   画像の width / height も指定しているため、読み込み前後でレイアウトはずれない。
+ * - スマホ画面はパネルの内側に収めるため、画面外にははみ出さない。パネルが狭いとき（Kai Design をスマホで
+ *   見たとき）は、スマホ画面の比率を大きくして小さくなりすぎないようにする。
+ * - 読み上げ順は「PC画面 → スマホ画面 → 文字」。どちらの画像にも、何の表示かが分かる代替テキストを付ける。
+ * - mobileScreenshot が無い作品は、PC画面だけのモックアップになる。
+ *
  * ■ リンク
  * - リンク要素は作品名の1つだけ（ProjectCard と同じ方針）。作品名リンクの疑似要素（::after）を作品全体に広げ、
  *   画像や文字のどこを押しても詳細ページへ移動できるようにする。
@@ -31,7 +41,7 @@ type FeaturedProjectListProps = {
  *   画面に入ったときに表示する。画像は移動せずに 1.4 秒で（D-069）、文字は画像より少し遅れてフェードインする。
  *   文字（.body）は作品全体を覆うリンクの ::after を含むため、移動はさせずフェードだけにする（data-reveal="fade"）。
  *   JavaScript が無効のときや、動きを減らす設定のときは最初から表示される。
- * - ホバー・フォーカス：画像の軽い拡大と「詳しく見る」の矢印の移動。CSS だけで行う。
+ * - ホバー・フォーカス：PC画面の軽い拡大・スマホ画面の小さな浮き上がり（D-073）と、「詳しく見る」の矢印の移動。CSS だけで行う。
  *   作品全体は作品名リンクの ::after で覆われているため、起点は .project:hover と、
  *   キーボード操作時の .project:has(.link:focus-visible)。
  *
@@ -41,21 +51,44 @@ export default function FeaturedProjectList({ projects }: FeaturedProjectListPro
   return (
     <ol className={styles.list}>
       {projects.map((project, index) => {
-        const { slug, title, kind, fictionLabel, summary, techs, thumbnail } = project;
+        const { slug, title, kind, fictionLabel, summary, techs, thumbnail, mobileScreenshot } = project;
         return (
           <li key={slug} className={styles.item}>
             <article className={styles.project}>
               <div className={styles.media} data-reveal="image">
-                <Image
-                  src={thumbnail.src}
-                  alt={thumbnail.alt}
-                  width={thumbnail.width}
-                  height={thumbnail.height}
-                  loading="lazy"
-                  // 画像最適化が無効なため srcset は出力されないが、将来有効にしたときの表示幅の目安として残す
-                  sizes="(min-width: 1024px) 60vw, 100vw"
-                  className={styles.image}
-                />
+                {/* PC画面：ブラウザ風の枠（上部のバーは装飾のため読み上げない） */}
+                <div className={styles.desktop}>
+                  <div className={styles.browserBar} aria-hidden="true">
+                    <span className={styles.browserDot} />
+                    <span className={styles.browserDot} />
+                    <span className={styles.browserDot} />
+                  </div>
+                  <Image
+                    src={thumbnail.src}
+                    alt={`${thumbnail.alt}（PC表示）`}
+                    width={thumbnail.width}
+                    height={thumbnail.height}
+                    loading="lazy"
+                    // 画像最適化が無効なため srcset は出力されないが、将来有効にしたときの表示幅の目安として残す
+                    sizes="(min-width: 1024px) 45vw, 80vw"
+                    className={styles.image}
+                  />
+                </div>
+
+                {/* スマホ画面：PC画面の右手前に重ねる（D-073） */}
+                {mobileScreenshot && (
+                  <div className={styles.phone}>
+                    <Image
+                      src={mobileScreenshot.src}
+                      alt={mobileScreenshot.alt}
+                      width={mobileScreenshot.width}
+                      height={mobileScreenshot.height}
+                      loading="lazy"
+                      sizes="(min-width: 1024px) 13vw, 28vw"
+                      className={styles.phoneImage}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className={styles.body} data-reveal="fade" data-reveal-delay="1">

@@ -35,8 +35,15 @@ export type Project = {
   techs: readonly string[];
   /** 公開サイトのURL */
   siteUrl: string;
-  /** 一覧カード用の画像。詳細ページのメイン画像にも使う */
+  /** 一覧カード用の画像（PC表示のスクリーンショット）。詳細ページのメイン画像・Hero にも使う */
   thumbnail: ProjectImage;
+  /**
+   * スマートフォン表示のスクリーンショット（任意、D-073）。
+   * Home の制作実績のモックアップで、PC画面（thumbnail）の右手前に重ねて表示する。
+   * thumbnail と同じセクションを、実際の作品サイトを幅390pxで表示して撮影したもの。
+   * 無い作品はPC画面だけのモックアップになる。
+   */
+  mobileScreenshot?: ProjectImage;
   /** Home の Selected Projects に表示するか */
   featured: boolean;
   /** ページ・セクション構成（詳細ページの Overview に表示） */
