@@ -31,10 +31,114 @@
   border-radius: var(--radius-lg) 0 0 var(--radius-lg);
 }
 
+/* ---------- モックアップ（D-073） ----------
+ * .media を背景パネルにし、PC画面（.desktop）とスマホ画面（.phone）を重ねる。
+ * - パネルの縦横比を固定し、中身はパネルの幅（cqi：パネル幅の1%）を基準に絶対配置する。
+ *   画像の読み込み前後で高さが変わらない（レイアウトのずれ防止）。
+ * - すべてパネルの内側に置き、パネルは overflow: hidden なので、画面の外へははみ出さない。
+ * - 色は既存のトークンだけを使う。アクセント色はパネルの淡い光にだけ使い、作品画面の色を邪魔しない。
+ *
+ * 寸法（パネル幅 = 100cqi。cqi をパネル基準にするため、パネルを inline-size のコンテナにする）
+ * - 通常：縦横比 11:7。PC画面は幅80、スマホ画面は幅20で右下に重ねる。
+ * - 画面幅 599px 以下（Kai Design をスマホで見たとき）：縦横比 4:3。スマホ画面を幅28に広げ、
+ *   小さくなりすぎないようにする（375px の画面でスマホ画面は約100px 幅）。
+ */
+.media {
+  --desktop-left: 4cqi;
+  --desktop-top: 6cqi;
+  --desktop-width: 80cqi;
+  --bar-height: 2.6cqi;
+  --phone-width: 20cqi;
+  --phone-right: 4cqi;
+  --phone-bottom: 4cqi;
+  --phone-padding: 0.8cqi;
+  --phone-radius: 3.2cqi;
+
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 11 / 7;
+  background:
+    radial-gradient(
+      ellipse at 85% 90%,
+      color-mix(in srgb, var(--color-accent) 12%, transparent),
+      transparent 60%
+    ),
+    var(--color-surface);
+}
+
+/*
+ * 狭いパネル：画面幅 599px 以下（このときパネル幅は約 355〜580px）。
+ * パネル自身の縦横比も変えるため、コンテナクエリではなく画面幅で切り替える（寸法と縦横比を同じ条件にそろえる）。
+ */
+@media (max-width: 599px) {
+  .media {
+    --desktop-left: 3cqi;
+    --desktop-top: 12cqi;
+    --desktop-width: 74cqi;
+    --bar-height: 3.4cqi;
+    --phone-width: 28cqi;
+    --phone-right: 3cqi;
+    --phone-bottom: 5cqi;
+    --phone-padding: 1.1cqi;
+    --phone-radius: 4.4cqi;
+
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* PC画面：ブラウザ風の枠 */
+.desktop {
+  position: absolute;
+  top: var(--desktop-top);
+  left: var(--desktop-left);
+  width: var(--desktop-width);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--bar-height) * 0.45);
+  background: var(--color-bg);
+  box-shadow: 0 2cqi 5cqi rgb(0 0 0 / 0.35);
+}
+
+.browserBar {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--bar-height) * 0.3);
+  height: var(--bar-height);
+  padding-inline: calc(var(--bar-height) * 0.5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.browserDot {
+  width: calc(var(--bar-height) * 0.32);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-text) 22%, transparent);
+}
+
 .image {
   display: block;
   width: 100%;
   height: auto;
+}
+
+/* スマホ画面：PC画面の右手前に重ねる。本体の縁（padding）と角丸で端末らしく見せる */
+.phone {
+  position: absolute;
+  right: var(--phone-right);
+  bottom: var(--phone-bottom);
+  width: var(--phone-width);
+  padding: var(--phone-padding);
+  border: 1px solid var(--color-border);
+  border-radius: var(--phone-radius);
+  background: var(--color-bg);
+  box-shadow: 0 2cqi 6cqi rgb(0 0 0 / 0.5);
+}
+
+.phoneImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: calc(var(--phone-radius) - var(--phone-padding));
 }
 
 .body {
@@ -132,20 +236,26 @@
 
 /*
  * ホバー・フォーカス演出（D-068）
- * - 画像の軽い拡大（1.03倍）と、「詳しく見る」の矢印の小さな移動。0.3秒。
- * - 画像は .media の overflow: hidden の中で拡大するため、周りのレイアウトはずれない。
+ * - PC画面の軽い拡大（1.02倍）・スマホ画面の小さな浮き上がり（パネル幅の1.2%）と、
+ *   「詳しく見る」の矢印の小さな移動。0.3秒（D-073 で、画像の1.03倍拡大から置き換えた）。
+ * - どちらも .media の overflow: hidden の中で動くため、周りのレイアウトはずれない。
  * - ホバーは、ホバーできる端末（マウスなど）だけ。タッチ操作では動きに頼らない。
  * - キーボード操作で作品名にフォーカスしたときも同じ動きにする（フォーカスリングは作品名に表示）。
  * - 動きを減らす設定のときは拡大・移動しない。
  */
 @media (prefers-reduced-motion: no-preference) {
-  .image,
+  .desktop,
+  .phone,
   .arrow {
     transition: transform 0.3s var(--ease-out);
   }
 
-  .project:has(.link:focus-visible) .image {
-    transform: scale(1.03);
+  .project:has(.link:focus-visible) .desktop {
+    transform: scale(1.02);
+  }
+
+  .project:has(.link:focus-visible) .phone {
+    transform: translateY(-1.2cqi);
   }
 
   .project:has(.link:focus-visible) .arrow {
@@ -153,8 +263,12 @@
   }
 
   @media (hover: hover) {
-    .project:hover .image {
-      transform: scale(1.03);
+    .project:hover .desktop {
+      transform: scale(1.02);
+    }
+
+    .project:hover .phone {
+      transform: translateY(-1.2cqi);
     }
 
     .project:hover .arrow {

@@ -10,7 +10,8 @@ import { mellowCoffeeCaseStudy } from "./case-studies/mellow-coffee";
  *
  * 画像について（仮）：
  * 各サイトをローカルでビルドし、1440×900 の表示領域を撮影したスクリーンショット（1600×1000px）。
- * 画面内の写真の利用権が未確認のため、公開前に確認する（decision-log.md D-020）。
+ * mobileScreenshot は、公開中の各作品サイトを 390×844（2倍解像度）で表示して撮影したもの（780×1688px、D-073）。
+ * 画面内の写真の利用権の確認状況は decision-log.md D-020・D-073 を参照。
  *
  * 詳細ページ（/projects/[slug]）の文章は data/case-studies/ に作品ごとのファイルで管理する。
  * 作品を追加するときは、この配列に1件追加し、case-studies に1ファイル作るだけでよい
@@ -30,6 +31,12 @@ export const projects: readonly Project[] = [
       alt: "株式会社 木と日々（架空の住宅会社）のWebサイト。施工事例の一覧部分の画面",
       width: 1600,
       height: 1000,
+    },
+    mobileScreenshot: {
+      src: "/images/projects/ki-to-hibi/works-section-mobile.jpg",
+      alt: "同じWebサイトのスマートフォン表示。施工事例の一覧部分の画面",
+      width: 780,
+      height: 1688,
     },
     featured: true,
     structure: [
@@ -57,6 +64,12 @@ export const projects: readonly Project[] = [
       alt: "MELLOW COFFEE（架空のカフェ）のランディングページ。ファーストビューの画面",
       width: 1600,
       height: 1000,
+    },
+    mobileScreenshot: {
+      src: "/images/projects/mellow-coffee/hero-section-mobile.jpg",
+      alt: "同じランディングページのスマートフォン表示。ファーストビューの画面",
+      width: 780,
+      height: 1688,
     },
     featured: true,
     structure: [
