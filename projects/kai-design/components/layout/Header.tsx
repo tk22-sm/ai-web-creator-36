@@ -2,6 +2,7 @@ import Link from "next/link";
 import { mainNavItems } from "@/data/navigation";
 import MobileNav from "./MobileNav";
 import NavLinks from "./NavLinks";
+import SocialLinks from "./SocialLinks";
 import styles from "./Header.module.css";
 
 /**
@@ -19,13 +20,17 @@ export default function Header() {
           Kai Design
         </Link>
 
-        <nav className={styles.desktopNav} aria-label="メインメニュー">
-          <NavLinks
-            items={mainNavItems}
-            listClassName={styles.list}
-            linkClassName={styles.link}
-          />
-        </nav>
+        {/* 768px 以上：ナビの右に SNS リンク（D-074）。スマホでは MobileNav のパネル内に置く */}
+        <div className={styles.desktopGroup}>
+          <nav className={styles.desktopNav} aria-label="メインメニュー">
+            <NavLinks
+              items={mainNavItems}
+              listClassName={styles.list}
+              linkClassName={styles.link}
+            />
+          </nav>
+          <SocialLinks placement="header" />
+        </div>
 
         <MobileNav />
       </div>

@@ -8,6 +8,8 @@
  *   空の間は Journal セクションに「準備中」の案内を表示する。
  */
 
+import { noteProfile } from "./social-links";
+
 export type Article = {
   /** 記事タイトル */
   title: string;
@@ -23,6 +25,7 @@ export const articles: readonly Article[] = [];
 
 /**
  * note のプロフィールページの URL。
- * 未確定のため null。null の間はプロフィールへのリンクを表示しない。
+ * URL は data/social-links.ts で一元管理する（D-074）。
+ * 記事が1件以上あるとき、Journal に「noteで記事を見る」として表示される（記事が無い間は表示しない）。
  */
-export const noteProfileUrl: string | null = null;
+export const noteProfileUrl: string | null = noteProfile.url;

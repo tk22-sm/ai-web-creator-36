@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState, type FocusEvent } from "react";
 import { mainNavItems } from "@/data/navigation";
 import NavLinks from "./NavLinks";
+import SocialLinks from "./SocialLinks";
 import styles from "./MobileNav.module.css";
 
 /**
@@ -99,6 +100,8 @@ export default function MobileNav() {
           linkClassName={styles.link}
           onLinkClick={() => setIsOpen(false)}
         />
+        {/* SNS リンク（D-074）。新しいタブで開くため、押してもメニューは閉じない */}
+        <SocialLinks placement="menu" />
       </nav>
     </div>
   );

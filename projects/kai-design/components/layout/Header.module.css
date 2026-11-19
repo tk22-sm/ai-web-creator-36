@@ -32,13 +32,22 @@
   white-space: nowrap;
 }
 
-.desktopNav {
+/* PC 用のナビと SNS リンク（D-074）。スマホでは MobileNav に切り替わるため非表示 */
+.desktopGroup {
   display: none;
 }
 
 @media (min-width: 768px) {
-  .desktopNav {
-    display: block;
+  .desktopGroup {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+}
+
+@media (min-width: 1024px) {
+  .desktopGroup {
+    gap: var(--space-6);
   }
 }
 
