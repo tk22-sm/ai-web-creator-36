@@ -7,12 +7,17 @@
  * - DM には個人情報や機密性の高い内容を書かず、まずは簡単な用件だけを送ってもらう。
  *
  * お問い合わせページ（ContactForm）とプライバシーポリシーの両方がこの値を使う。
+ *
+ * アカウント名と URL は data/social-links.ts を唯一の情報源とし、ここでは参照するだけにする（D-075）。
+ * ヘッダー・フッターの SNS リンクと、DM の窓口が同じアカウントになる。
  */
 
-/** Kai Design の Instagram */
+import { instagramAccount } from "./social-links";
+
+/** Kai Design の Instagram（DM の窓口） */
 export const instagram = {
   /** 表示用のアカウント名 */
-  handle: "@tk_wafh",
+  handle: instagramAccount.handle,
   /** プロフィールの URL */
-  url: "https://www.instagram.com/tk_wafh/",
+  url: instagramAccount.url,
 } as const;
