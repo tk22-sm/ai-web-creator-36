@@ -918,3 +918,14 @@ Formspree への実送信・管理画面の設定変更・本番用フォーム�
 - DM の受信テストは、新しいアカウントでも未実施。画面にもドキュメントにも「受信を確認済み」とは書かない。Instagram の2段階認証も未確認のまま（公開前チェックリスト A3）。
 - 運用：`docs/privacy-operations.md` の窓口の記載を `@kai.design22` に更新し、変更前に `@tk_wafh` 宛てに届いた DM が無いかを確認する手順を加えた。
 - 履歴の扱い：D-063・D-064・D-071・D-072 など、過去の決定に書かれた `@tk_wafh` は、その時点の記録として書き換えない。現在の窓口はこの D-075 のとおり `@kai.design22`。
+
+### D-076 Instagram アイコンの利用条件の確認（2026-11-19）と、本人確認済みの事項
+- 目的：D-074 で追加した Instagram アイコン（Simple Icons 由来の glyph）が、Meta の公式ガイドラインに沿っているかを一次情報で確認する。
+- 確認した一次情報（2026-11-19）：
+  - Meta「Instagram brand」（https://www.meta.com/brand/resources/instagram/instagram-brand/）：「Anyone using Instagram's assets should only use the logos and screenshots found on our Brand Resource Center site and follow these guidelines.」。素材のダウンロードの前に「I have read and accept the applicable guidelines and other terms for use.」への同意が求められる。「partnership, sponsorship or endorsement」を示す使い方や、ブランドを最も目立つ要素にする使い方を避けるよう求めている。
+  - Meta「Instagramアイコンの使用に関するガイドライン」（https://www.meta.com/ja-jp/brand/resources/instagram/icons/）：ページは JavaScript で描画されるため、作業環境からはタイトル以外を取得できなかった。glyph の色・最小サイズ・余白などの具体的な条件は、一次情報では未確認（D-074 に書いた「単色可・黒か白を推奨」は検索結果の要約によるもので、一次情報としては確認できていない）。
+  - Simple Icons「DISCLAIMER」（https://github.com/simple-icons/simple-icons/blob/develop/DISCLAIMER.md）：プロジェクトは CC0 で公開されているが、すべてのアイコンが CC0 であることを意味しない。ブランドのガイドラインがある場合は、利用者がそれに従う必要がある。
+- 判断：Meta は、Brand Resource Center にある公式素材だけを使うよう求めている。現在の glyph は形が同じでも Meta の配布ファイルではないため、公式素材への差し替えが必要と判断した（指示の B）。公式素材のダウンロードには、Meta のサイトで利用条件への同意が必要で、これは本人の操作になるため、作業をここで止めた。非公式の配布サイトからは取得しない。表示方法（アイコンのまま・文字のリンクにする）は、本人の承認まで変えない。
+- 差し替えの手順（案）：本人が Meta の Brand Resource Center から Instagram の素材を、利用条件に同意してダウンロードし、glyph の SVG をリポジトリに置く（またはファイルを渡す）。ガイドラインページの色・サイズ・余白の条件も、本人がブラウザで確認する。その後、`components/layout/SocialLinks.tsx` の path を公式 SVG に置き換え、表示・クリック・CSP を確認する。
+- 暫定案（未実施・要承認）：公式素材を用意できるまで、Instagram をアイコンではなく「Instagram」の文字のリンクにする（note と同じ見せ方）。ブランドの素材を使わないため、素材の利用条件の問題が生じない。
+- 本人確認済みの事項（2026-11-19、本人報告）：Instagram（`@kai.design22`）の2段階認証は設定済み。新しいアカウントで DM の受信を確認済み。プライバシーポリシーの改定履歴（窓口の変更のお知らせ）は今回は追加しない。運用ルール（`docs/privacy-operations.md`）と公開前チェックリスト（A3・A4 の Instagram の項目）を更新した。プライバシーポリシーの本文は変えていない。
