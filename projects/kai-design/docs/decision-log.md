@@ -889,3 +889,52 @@ Formspree への実送信・管理画面の設定変更・本番用フォーム�
     - 生成した画像の利用に関する OpenAI の利用規約の条件（本人のアカウント種別での商用・公開利用の扱い）。
     - 生成画像が既存の作品や実在の人物・建物に似ていないか（第三者の権利を侵害していないか）。AI で生成したことは、第三者の権利を侵害していないことの確認にはならない。
   - このため A5 は「一部済」とし、「確認済み」とはしない。今回追加したスマホ版のスクリーンショット2枚も、同じ写真を含むため同じ扱いにする（新しい写真は増えていない。木と日々は施工事例の写真3枚のうち2枚と3枚目の一部、MELLOW COFFEE は `hero.png`）。
+
+## STEP 9：ヘッダー・フッターへの Instagram／note リンク追加（2026-11-19）
+
+### D-074 ヘッダー・スマホメニュー・フッターに、Instagram と note へのリンクを置く
+- 背景・目的：サイトを見た人が、発信用の SNS（Instagram・note）へ自然に移動できる導線を作る（2026-11-19 承認）。デザイン・レスポンシブ・アクセシビリティ・セキュリティは維持する。
+- リンク先（URL は `data/social-links.ts` で一元管理）：
+  - Instagram：`@kai.design22` → `https://www.instagram.com/kai.design22/`（本人から受け取った URL のクエリパラメータ `knvt` を除いた形。同じプロフィールに移動することを確認。Instagram はログインしていないとプロフィールの中身を表示しないため、中身は本人がブラウザで確認する）。
+  - note：`kai_design22` → `https://note.com/kai_design22`（ページのタイトル「kai_design｜note」、canonical が同じ URL であることを確認）。
+  - `data/articles.ts` の `noteProfileUrl` も同じ値を使うようにした（記事が1件以上あるとき Journal に「noteで記事を見る」が出る。記事が無い今は表示に変化なし）。
+- 配置：
+  - PC（768px 以上）：ヘッダーのナビの右に、細い区切り線をはさんで Instagram → note。既存のナビ項目は変えない。
+  - スマホ（767px 以下）：ヘッダーのバーには置かず、ハンバーガーメニューのパネル内、ナビ項目の下に横並び。
+  - フッター：ブランド名と説明文の下に横並び（全画面幅）。既存のナビ・著作権表示は変えない。
+- 見た目：押せる範囲は 44×44px 以上（note は 52×44px）。アイコンは 20px、色は `--color-text-muted`（ヘッダーの背景に対してコントラスト比 7.69、フッターの背景に対して 6.85）、ホバーでナビと同じ `--color-accent-hover`。動きは色の変化だけで、動きを減らす設定ではほぼ無効になる。
+- 素材：
+  - Instagram：Simple Icons 13.21.0（CC0-1.0）の Instagram の path を改変せずに使い、単色（`currentColor`）で表示する。Simple Icons は出典を Meta のブランドリソースとしている。Meta のガイドラインは、glyph を単色（黒か白を推奨、他の単色も可）で、改変せずに使うことと、Meta のサイトで配布している公式ファイルを使うことを求めている。公式ファイルのダウンロードには Meta のサイトで条件への同意が必要なため、公式ファイルへの差し替えは残課題とする（形は同じ）。
+  - note：公式ロゴの利用条件を確認できなかったため、ロゴは使わず「note」の文字で表示する。
+- アクセシビリティ：リンクの読み上げ名は「Instagram（新しいタブで開きます）」「note（新しいタブで開きます）」（アイコン・文字は aria-hidden、読み上げ用の文字は visually-hidden）。リストには「SNS」の名前を付けた。フォーカスは共通の `:focus-visible`。
+- セキュリティ：`target="_blank"` と `rel="noopener noreferrer"`。外部スクリプト・画像の読み込みは無し（SVG はページ内に直接書く）。CSP のハッシュの件数は変わらない（インラインスクリプト 10 件・style 属性 1 件）。
+- お問い合わせの窓口との関係：最初の実装では、DM の窓口（`@tk_wafh`）と発信用のアカウント（`@kai.design22`）を別に扱ったが、同じ PR の中で D-075 により `@kai.design22` に統一した。
+- 確認：1440 / 1280 / 768 / 390 / 375 / 320px で横スクロール・重なりなし、CLS 0、CSP 違反 0。8か所（PC のヘッダー・フッター、スマホのメニュー・フッター × 2 サービス）を実際にクリックし、正しいプロフィールが新しいタブで開き、元のタブは移動しないことを確認。サイト内のナビも従来どおり動く。
+
+### D-075 Instagram のアカウントを `@kai.design22` に統一する（お問い合わせの窓口を含む）
+- 背景：D-074 でヘッダー・フッターに `@kai.design22` へのリンクを置いたが、お問い合わせページとプライバシーポリシーの DM の窓口は `@tk_wafh` のままで、サイト内に2つの Instagram アカウントが並んでいた。訪問者が迷わず連絡できるよう、Kai Design で使う Instagram を `@kai.design22`（https://www.instagram.com/kai.design22/）に統一する（2026-11-19 承認）。
+- 一元管理：アカウント名と URL は `data/social-links.ts` だけに書く。`data/contact-channels.ts` の `instagram`（お問い合わせページ・プライバシーポリシーが使う）は、その値を参照するだけにした。ヘッダー・フッターの SNS リンクと DM の窓口は、常に同じアカウントになる。
+- 画面の変化：お問い合わせページ（フォームが準備中のときの上部の案内、フォームが使えるときの送信ボタンの下）と、プライバシーポリシー第7章の「Instagram（@tk_wafh）」が「Instagram（@kai.design22）」になり、リンク先も変わる。文言・位置付け（フォームが使えない場合の窓口）・注意書き（DM に個人情報や機密性の高い内容を書かない）は変えていない。
+- DM の受信テストは、新しいアカウントでも未実施。画面にもドキュメントにも「受信を確認済み」とは書かない。Instagram の2段階認証も未確認のまま（公開前チェックリスト A3）。
+- 運用：`docs/privacy-operations.md` の窓口の記載を `@kai.design22` に更新し、変更前に `@tk_wafh` 宛てに届いた DM が無いかを確認する手順を加えた。
+- 履歴の扱い：D-063・D-064・D-071・D-072 など、過去の決定に書かれた `@tk_wafh` は、その時点の記録として書き換えない。現在の窓口はこの D-075 のとおり `@kai.design22`。
+
+### D-076 Instagram アイコンの利用条件の確認（2026-11-19）と、本人確認済みの事項
+- 目的：D-074 で追加した Instagram アイコン（Simple Icons 由来の glyph）が、Meta の公式ガイドラインに沿っているかを一次情報で確認する。
+- 確認した一次情報（2026-11-19）：
+  - Meta「Instagram brand」（https://www.meta.com/brand/resources/instagram/instagram-brand/）：「Anyone using Instagram's assets should only use the logos and screenshots found on our Brand Resource Center site and follow these guidelines.」。素材のダウンロードの前に「I have read and accept the applicable guidelines and other terms for use.」への同意が求められる。「partnership, sponsorship or endorsement」を示す使い方や、ブランドを最も目立つ要素にする使い方を避けるよう求めている。
+  - Meta「Instagramアイコンの使用に関するガイドライン」（https://www.meta.com/ja-jp/brand/resources/instagram/icons/）：ページは JavaScript で描画されるため、作業環境からはタイトル以外を取得できなかった。glyph の色・最小サイズ・余白などの具体的な条件は、一次情報では未確認（D-074 に書いた「単色可・黒か白を推奨」は検索結果の要約によるもので、一次情報としては確認できていない）。
+  - Simple Icons「DISCLAIMER」（https://github.com/simple-icons/simple-icons/blob/develop/DISCLAIMER.md）：プロジェクトは CC0 で公開されているが、すべてのアイコンが CC0 であることを意味しない。ブランドのガイドラインがある場合は、利用者がそれに従う必要がある。
+- 判断：Meta は、Brand Resource Center にある公式素材だけを使うよう求めている。現在の glyph は形が同じでも Meta の配布ファイルではないため、公式素材への差し替えが必要と判断した（指示の B）。公式素材のダウンロードには、Meta のサイトで利用条件への同意が必要で、これは本人の操作になるため、作業をここで止めた。非公式の配布サイトからは取得しない。表示方法（アイコンのまま・文字のリンクにする）は、本人の承認まで変えない。
+- 差し替えの手順（案）：本人が Meta の Brand Resource Center から Instagram の素材を、利用条件に同意してダウンロードし、glyph の SVG をリポジトリに置く（またはファイルを渡す）。ガイドラインページの色・サイズ・余白の条件も、本人がブラウザで確認する。その後、`components/layout/SocialLinks.tsx` の path を公式 SVG に置き換え、表示・クリック・CSP を確認する。
+- 暫定案（未実施・要承認）：公式素材を用意できるまで、Instagram をアイコンではなく「Instagram」の文字のリンクにする（note と同じ見せ方）。ブランドの素材を使わないため、素材の利用条件の問題が生じない。
+- 本人確認済みの事項（2026-11-19、本人報告）：Instagram（`@kai.design22`）の2段階認証は設定済み。新しいアカウントで DM の受信を確認済み。プライバシーポリシーの改定履歴（窓口の変更のお知らせ）は今回は追加しない。運用ルール（`docs/privacy-operations.md`）と公開前チェックリスト（A3・A4 の Instagram の項目）を更新した。プライバシーポリシーの本文は変えていない。
+- 追記（2026-11-19、公式素材への差し替え）：
+  - 素材：本人が Meta の Brand Resource Center から、利用条件に同意してダウンロードした `Instagram_Glyph_White.svg`（白・`#FFFFFF`、viewBox 1000×1000、1,819 バイト）を `public/images/Instagram_Glyph_White.svg` に置いた（本人報告）。ファイルは改変せずにリポジトリに保存し、出典を追えるようにした。中身を確認し、スクリプト・イベント属性・外部参照・`data:` URL などが無いことを確かめた（`<path>` 1つと、塗りを白にする `<style>` だけ）。
+  - 実装：`components/layout/SocialLinks.tsx` で、このファイルを `next/image`（静的書き出しのため最適化なしの `<img>`）で 20×20px に表示する。Simple Icons 由来の path は削除した。SVG の中に `<style>` があるため、HTML に直接書き込むと CSP（`style-src`）でブロックされる。画像として読み込めば、ファイルを改変せずに使え、既存の CSP（`img-src 'self'`）の範囲で表示できるため、この方法にした。CSP の設定とハッシュの件数（インラインスクリプト 10 件・style 属性 1 件）は変わらない。
+  - 色：公式ファイルの白のまま。色を変えてよいかを一次情報で確認できていないため、`currentColor` やホバー時の色の変化は使わない（Instagram のアイコンは常に白。note の文字は従来どおり、通常は `--color-text-muted`、ホバーでアクセント色）。
+  - アクセシビリティ：画像は装飾として `alt=""`。リンクの読み上げ名は従来どおり「Instagram（新しいタブで開きます）」で、重複して読み上げられない。押せる範囲は 44×44px、アイコンの周りに 12px の余白がある。
+  - ガイドライン：Instagram の glyph のガイドラインページ（https://www.meta.com/ja-jp/brand/resources/instagram/icons/）は、作業環境からは引き続きタイトルしか取得できず、色・最小サイズ・余白の条件は一次情報で確認できていない。本人がブラウザで確認する残課題とする。
+  - 確認：1440 / 1280 / 768 / 390 / 375 / 320px で、ヘッダー（PC）・メニュー（スマホ）・フッターの公式アイコンが読み込まれ（元画像 150×150 として読み込み、20×20px で表示、縦横比は1:1のまま）、横スクロール・重なりなし、CLS 0、CSP 違反 0、コンソールエラー 0。8か所を実際にクリックし、正しいプロフィールが新しいタブで開くことを確認。キーボードの移動順・フォーカスリング・読み上げ名も従来どおり。全ページ（Home・作品一覧・詳細2ページ・About・Contact・Privacy・404）で横スクロールなし。
+  - 見た目の差：白いアイコンは、灰色の「note」の文字より少し明るく見える。また、ホバーで note はアクセント色になるが、Instagram のアイコンは白のまま。表示が崩れているわけではないため、そのままにしている（そろえる場合の案：note の文字も白にするなど。本人が判断する）。
+  - コード内のコメント（`data/contact-channels.ts`・`components/contact/ContactForm.tsx`・`app/privacy/page.tsx`）の「DM の受信テストは未実施」を、本人確認済み（2026-11-19）の内容に直した。画面の文言・プライバシーポリシーの本文は変えていない。

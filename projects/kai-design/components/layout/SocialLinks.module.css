@@ -1,0 +1,62 @@
+/*
+ * SNS リンク（D-074）
+ * - 押せる範囲は 44×44px。アイコンの見た目は 20px で、ナビゲーションより目立たせない。
+ * - 色は通常 --color-text-muted、ホバーでナビと同じ --color-accent-hover。
+ * - フォーカスリングは共通の :focus-visible（globals.css）。
+ */
+.list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.link {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  height: 44px;
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+.glyph {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+/* note：ロゴの代わりの文字。ナビと同じ書体・太さで、アイコンと同じくらいの大きさにする */
+.wordmark {
+  font-family: var(--font-heading);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+/* ヘッダー（768px 以上）：ナビとの間に細い区切り線を置く */
+.header {
+  margin-right: calc(var(--space-2) * -1);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--color-border);
+}
+
+/* スマホメニュー：リンク一覧の下に横並び。左端をメニューの文字にそろえる */
+.menu {
+  margin-top: var(--space-6);
+  margin-left: calc(var(--space-2) * -1);
+}
+
+/* フッター：説明文の下に横並び。左端を説明文にそろえる */
+.footer {
+  margin-top: var(--space-4);
+  margin-left: calc(var(--space-2) * -1);
+}

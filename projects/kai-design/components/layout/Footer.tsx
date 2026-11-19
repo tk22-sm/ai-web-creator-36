@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { legalNavItems, mainNavItems } from "@/data/navigation";
 import NavLinks from "./NavLinks";
+import SocialLinks from "./SocialLinks";
 import styles from "./Footer.module.css";
 
 const footerNavItems = [...mainNavItems, ...legalNavItems];
@@ -20,6 +21,8 @@ export default function Footer() {
             Kai Design
           </Link>
           <p className={styles.note}>個人で活動するWeb制作のポートフォリオサイトです。</p>
+          {/* SNS リンク（D-074）。ヘッダーと同じ部品・同じ見た目 */}
+          <SocialLinks placement="footer" />
         </div>
 
         <nav aria-label="フッターメニュー">
