@@ -279,7 +279,7 @@ export default function ContactForm({
     <form className={styles.form} method="post" noValidate onSubmit={handleSubmit} aria-busy={isSubmitting}>
       {/*
         送信先が未設定（準備中）のときは、代わりの連絡先として Instagram の DM を案内する（D-064）。
-        DM の受信テストは未実施のため、「受信を確認済み」とは書かない。
+        DM の受信は本人が確認済み（2026-11-19、D-076）。画面の文言はこれまでどおりで、受信の確認には触れない。
       */}
       {!submitter && (
         <div className={`${styles.notice} ${styles.noticeStack}`}>
